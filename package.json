@@ -1,0 +1,12 @@
+{
+  "name": "gridsome-plugin-flexsearch",
+  "version": "0.0.0",
+  "description": "Flexsearch plugin for Gridsome",
+  "main": "index.js",
+  "license": "MIT",
+  "author": {
+    "name": "Travis Reynolds",
+    "email": "travis@travisreynolds.dev",
+    "url": "https://travisreynolds.dev"
+  }
+}
