@@ -79,6 +79,8 @@ export default {
 </script>
 ```
 
+Each search result will include a `path` key, for example `/posts/123-abc`, which can be used with `g-link`.
+
 A handy mixin is also included, to save you writing the above boilerplate:
 
 ```vue
