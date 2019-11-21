@@ -13,7 +13,7 @@ function CreateSearchIndex (api, { searchFields, collections }) {
   })
   api.loadSource(actions => {
     console.log('Creating search index')
-    const indexes = collections.map(({ typeName, indexName, fields }) => {
+    const indexes = collections.map(({ typeName, indexName, fields = [] }) => {
       const { collection } = actions.getCollection(typeName)
       return { indexName, ...collection, fields: [...searchFields, ...fields] }
     })
