@@ -1,5 +1,3 @@
-import FlexSearch from 'flexsearch'
-
 export default {
   data: () => ({
     searchTerm: ''
@@ -26,7 +24,7 @@ export default {
         id: 'id',
         field: searchFields
       }
-  } )
-    this.$search.import( index, { serialize: false } )
+    })
+    this.$search.import(index, { serialize: false })
   }
 }

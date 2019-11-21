@@ -1,26 +1,26 @@
-const path = require( 'path' )
+const path = require('path')
 const fs = require('fs')
-const FlexSearch = require( 'flexsearch' )
+const FlexSearch = require('flexsearch')
 
-function CreateSearchIndex ( api, { searchFields, collections } ) {
+function CreateSearchIndex (api, { searchFields, collections }) {
   const search = new FlexSearch({
-    tokenize: "strict",
+    tokenize: 'strict',
     depth: 3,
     doc: {
-      id: "id",
+      id: 'id',
       field: searchFields
     }
-  } )
-  api.loadSource( actions => {
-    console.log('Creating search index');
+  })
+  api.loadSource(actions => {
+    console.log('Creating search index')
     const indexes = collections.map(({ typeName, indexName, fields }) => {
-      const { collection } = actions.getCollection( typeName )
+      const { collection } = actions.getCollection(typeName)
       return { indexName, ...collection, fields: [...searchFields, ...fields] }
-    } )
+    })
 
-    for ( const index of indexes ) {
-      const docs = index.data.map( doc => {
-        const docFields = index.fields.reduce((obj, key) => ({ [key]: doc[key], ...obj }), {})
+    for (const index of indexes) {
+      const docs = index.data.map(doc => {
+        const docFields = index.fields.reduce((obj, key) => ({ [ key ]: doc[ key ], ...obj }), {})
 
         return {
           index: index.indexName,
@@ -28,11 +28,10 @@ function CreateSearchIndex ( api, { searchFields, collections } ) {
           path: doc.path,
           ...docFields
         }
-      } )
+      })
       search.add(docs)
     }
-
-  } )
+  })
 
   api.configureServer(app => {
     console.log('Serving search index')
@@ -45,9 +44,9 @@ function CreateSearchIndex ( api, { searchFields, collections } ) {
     })
   })
 
-  api.afterBuild( ( { queue, config } ) => {
+  api.afterBuild(({ queue, config }) => {
     console.log('Saving search index')
-    const filename = path.join( config.outputDir, 'search.json' )
+    const filename = path.join(config.outputDir, 'search.json')
     const searchConfig = {
       searchFields,
       index: search.export({ serialize: false })
