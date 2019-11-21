@@ -2,14 +2,13 @@ import FlexSearch from 'flexsearch'
 
 export default {
   data: () => ({
-    searchIndex: null,
     searchTerm: ''
   }),
   computed: {
     searchResults () {
       const searchTerm = this.searchTerm
-      if (!this.searchIndex || searchTerm.length < 3) return []
-      return this.searchIndex.search({ query: searchTerm, limit: 5, depth: 5 })
+      if (searchTerm.length < 3) return []
+      return this.$search.search({ query: searchTerm, limit: 5, depth: 5 })
     }
   },
   watch: {
@@ -18,9 +17,8 @@ export default {
     }
   },
   async mounted () {
-    const search = new FlexSearch()
     const { searchFields, index } = await fetch('/search.json').then(r => r.json())
-    search.init({
+    this.$search.init({
       tokenize: 'strict',
       depth: 3,
       workers: 2,
@@ -28,8 +26,7 @@ export default {
         id: 'id',
         field: searchFields
       }
-    } )
-    search.import( index, { serialize: false } )
-    this.searchIndex = search
+  } )
+    this.$search.import( index, { serialize: false } )
   }
 }
