@@ -92,7 +92,13 @@ A handy mixin is also included with this package, to save you writing the above 
       class="input"
       type="text"
       placeholder="Search">
-    {{ searchResults }}
+    <g-link
+      v-for="result in searchResults"
+      :key="result.id"
+      :to="result.path"
+      class="navbar-item">
+      {{ result.title }}
+    </g-link>
   </Layout>
 </template>
 
