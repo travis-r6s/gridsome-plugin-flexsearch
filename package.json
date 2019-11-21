@@ -15,7 +15,6 @@
   "dependencies": {
     "core-js": "2",
     "flexsearch": "^0.6.32",
-    "fs-extra": "^8.1.0",
     "regenerator-runtime": "^0.13.3"
   },
   "devDependencies": {
