@@ -79,9 +79,9 @@ export default {
 </script>
 ```
 
-Each search result will include a `path` key, for example `/posts/123-abc`, which can be used with `g-link`.
+The search results will be an array of objects, each containing an id, the index name, the fields you specified in collections, and the path to the resurce (i.e. `/posts/abc-123`) which you could use in `g-link` for example.
 
-A handy mixin is also included, to save you writing the above boilerplate:
+A handy mixin is also included with this package, to save you writing the above boilerplate:
 
 ```vue
 <template>
