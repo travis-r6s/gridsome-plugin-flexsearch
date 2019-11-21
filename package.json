@@ -10,7 +10,7 @@
     "url": "https://travisreynolds.dev"
   },
   "dependencies": {
-    "flexsearch": "^0.6.22",
-    "fs-extra": "^7.0.1"
+    "flexsearch": "^0.6.32",
+    "fs-extra": "^8.1.0"
   }
 }
