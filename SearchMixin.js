@@ -18,8 +18,9 @@ export default {
     }
   },
   async mounted () {
+    const search = new FlexSearch()
     const { searchFields, index } = await fetch('/search.json').then(r => r.json())
-    this.searchIndex = new FlexSearch({
+    search.init({
       tokenize: 'strict',
       depth: 3,
       workers: 2,
@@ -27,7 +28,8 @@ export default {
         id: 'id',
         field: searchFields
       }
-    })
-    this.searchIndex.import(index, { serialize: false })
+    } )
+    search.import( index, { serialize: false } )
+    this.searchIndex = search
   }
 }
