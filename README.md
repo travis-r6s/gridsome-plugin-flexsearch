@@ -46,6 +46,11 @@ Now you will need to add the fields that will be included in the index, and sear
 | ---------- | --------|
 | `searchFields` | An array of keys in each node, that will be used for the search index. |
 
+You can also specify optional flexsearch configurations under a `flexsearch` key - the default configuration is to use the `default` profile, which will setup the FlexSearch instance with some sensible defaults.
+However you can override this profile, or set custom options such as `tokenize`, `resolution` etc. Read the [FlexSearch](https://github.com/nextapps-de/flexsearch#presets) docs to find out more.
+
+
+
 ## Usage
 
 Now you can use it in your Gridsome site - the FlexSearch instance is available at `this.$search`:
