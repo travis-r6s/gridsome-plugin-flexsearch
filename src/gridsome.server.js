@@ -33,5 +33,6 @@ module.exports = function (api, { fields, collections }) {
 }
 
 module.exports.defaultOptions = () => ({
-  collections: []
+  collections: [],
+  fields: []
 })

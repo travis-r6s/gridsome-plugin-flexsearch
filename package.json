@@ -9,8 +9,18 @@
     "email": "travis@travisreynolds.dev",
     "url": "https://travisreynolds.dev"
   },
+  "scripts": {
+    "watch": "babel src --watch -d .",
+    "build": "babel src -d ."
+  },
   "dependencies": {
+    "babel-preset-gatsby-package": "^0.2.11",
+    "core-js": "2",
     "flexsearch": "^0.6.32",
     "fs-extra": "^8.1.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.7.0",
+    "@babel/core": "^7.7.2"
   }
 }
