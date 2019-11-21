@@ -12,6 +12,12 @@
     "type": "git",
     "url": "https://github.com/thetre97/gridsome-plugin-flexsearch.git"
   },
+  "keywords": [
+    "gridsome",
+    "gridsome-plugin",
+    "flexsearch",
+    "search"
+  ],
   "dependencies": {
     "core-js": "2",
     "flexsearch": "^0.6.32",
