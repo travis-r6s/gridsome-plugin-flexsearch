@@ -13,18 +13,5 @@ export default {
     $route (to, from) {
       this.searchTerm = ''
     }
-  },
-  async mounted () {
-    const { searchFields, index } = await fetch('/search.json').then(r => r.json())
-    this.$search.init({
-      tokenize: 'strict',
-      depth: 3,
-      workers: 2,
-      doc: {
-        id: 'id',
-        field: searchFields
-      }
-    })
-    this.$search.import(index, { serialize: false })
   }
 }
