@@ -39,14 +39,14 @@ function CreateSearchIndex (api, { searchFields = [], collections = [], flexsear
       searchFields,
       index: search.export({ serialize: false })
     }
-    app.get('/search.json', (req, res) => {
+    app.get('/flexsearch.json', (req, res) => {
       res.json(searchConfig)
     })
   })
 
   api.afterBuild(({ queue, config }) => {
     console.log('Saving search index')
-    const filename = path.join(config.outputDir, 'search.json')
+    const filename = path.join(config.outputDir, 'flexsearch.json')
     const searchConfig = {
       searchFields,
       index: search.export({ serialize: false })

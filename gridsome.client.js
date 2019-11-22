@@ -2,7 +2,7 @@ import FlexSearch from 'flexsearch'
 export default function (Vue, options, context) {
   Vue.mixin({
     async mounted () {
-      const { searchFields, index } = await fetch('/search.json').then(r => r.json())
+      const { searchFields, index } = await fetch('/flexsearch.json').then(r => r.json())
       this.$search.init({
         tokenize: 'strict',
         depth: 3,
