@@ -12,25 +12,21 @@ function CreateSearchIndex (api, { searchFields = [], collections = [], flexsear
       field: searchFields
     }
   })
-  api.loadSource(actions => {
-    console.log('Creating search index')
-    const indexes = collections.map(({ typeName, indexName, fields = [] }) => {
-      const { collection } = actions.getCollection(typeName)
-      return { indexName, ...collection, fields: [...searchFields, ...fields] }
-    })
 
-    for (const index of indexes) {
-      const docs = index.data.map(doc => {
-        const docFields = index.fields.reduce((obj, key) => ({ [ key ]: doc[ key ], ...obj }), {})
+  api.onCreateNode(node => {
+    const collectionOptions = collections.find(({ typeName }) => typeName === node.internal.typeName)
+    if (collectionOptions) {
+      const index = { ...collectionOptions, fields: [...searchFields, ...collectionOptions.fields] }
+      const docFields = index.fields.reduce((obj, key) => ({ [ key ]: node[ key ], ...obj }), {})
 
-        return {
-          index: index.indexName,
-          id: doc.id,
-          path: doc.path,
-          ...docFields
-        }
-      })
-      search.add(docs)
+      const doc = {
+        index: index.indexName,
+        id: node.id,
+        path: node.path,
+        ...docFields
+      }
+
+      search.add(doc)
     }
   })
 
