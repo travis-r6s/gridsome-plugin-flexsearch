@@ -4,6 +4,9 @@ const FlexSearch = require('flexsearch')
 
 function CreateSearchIndex (api, { searchFields = [], collections = [], flexsearch = {} }) {
   const { profile = 'default', ...flexoptions } = flexsearch
+
+  const collectionsToInclude = collections.map(({ typeName }) => typeName)
+
   const search = new FlexSearch({
     profile,
     ...flexoptions,
@@ -14,8 +17,8 @@ function CreateSearchIndex (api, { searchFields = [], collections = [], flexsear
   })
 
   api.onCreateNode(node => {
-    const collectionOptions = collections.find(({ typeName }) => typeName === node.internal.typeName)
-    if (collectionOptions) {
+    if (collectionsToInclude.includes(node.internal.typeName)) {
+      const collectionOptions = collections.find(({ typeName }) => typeName === node.internal.typeName)
       const index = { ...collectionOptions, fields: [...searchFields, ...collectionOptions.fields] }
       const docFields = index.fields.reduce((obj, key) => ({ [ key ]: node[ key ], ...obj }), {})
 
