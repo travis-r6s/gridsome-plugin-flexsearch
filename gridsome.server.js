@@ -2,7 +2,7 @@ const path = require('path')
 const fs = require('fs')
 const FlexSearch = require('flexsearch')
 
-function CreateSearchIndex (api, { searchFields, collections, flexsearch }) {
+function CreateSearchIndex (api, { searchFields = [], collections = [], flexsearch = {} }) {
   const { profile = 'default', ...flexoptions } = flexsearch
   const search = new FlexSearch({
     profile,
@@ -57,3 +57,9 @@ function CreateSearchIndex (api, { searchFields, collections, flexsearch }) {
 }
 
 module.exports = CreateSearchIndex
+
+module.exports.defaultOptions = () => ({
+  flexsearch: { profile: 'default' },
+  searchFields: [],
+  collections: []
+})
