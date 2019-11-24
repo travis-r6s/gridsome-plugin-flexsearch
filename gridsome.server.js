@@ -19,7 +19,7 @@ function CreateSearchIndex (api, { searchFields = [], collections = [], flexsear
   api.onCreateNode(node => {
     if (collectionsToInclude.includes(node.internal.typeName)) {
       const collectionOptions = collections.find(({ typeName }) => typeName === node.internal.typeName)
-      const index = { ...collectionOptions, fields: [...searchFields, ...collectionOptions.fields] }
+      const index = { ...collectionOptions, fields: Array.isArray(searchFields) ? [...searchFields, ...collectionOptions.fields] : collectionOptions.fields }
       const docFields = index.fields.reduce((obj, key) => ({ [ key ]: node[ key ], ...obj }), {})
 
       const doc = {
