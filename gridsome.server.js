@@ -35,12 +35,9 @@ function CreateSearchIndex (api, { searchFields = [], collections = [], flexsear
 
   api.configureServer(app => {
     console.log('Serving search index')
-    const searchConfig = {
-      searchFields,
-      index: search.export({ serialize: false })
-    }
+    const searchIndex = search.export({ serialize: false })
     app.get('/flexsearch.json', (req, res) => {
-      res.json(searchConfig)
+      res.json(searchIndex)
     })
   })
 
@@ -48,11 +45,8 @@ function CreateSearchIndex (api, { searchFields = [], collections = [], flexsear
     console.log('Saving search index')
     const outputDir = config.outputDir || config.outDir
     const filename = path.join(outputDir, 'flexsearch.json')
-    const searchConfig = {
-      searchFields,
-      index: search.export({ serialize: false })
-    }
-    return fs.writeFileSync(filename, JSON.stringify(searchConfig))
+    const searchIndex = search.export({ serialize: false })
+    return fs.writeFileSync(filename, JSON.stringify(searchIndex))
   })
 }
 
