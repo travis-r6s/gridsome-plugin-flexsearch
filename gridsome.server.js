@@ -2,14 +2,11 @@ const path = require('path')
 const fs = require('fs')
 const FlexSearch = require('flexsearch')
 
-function CreateSearchIndex (api, { searchFields = [], collections = [], flexsearch = {} }) {
-  const { profile = 'default', ...flexoptions } = flexsearch
-
+function CreateSearchIndex (api, { searchFields = [], collections = [], flexsearch }) {
   const collectionsToInclude = collections.map(({ typeName }) => typeName)
 
   const search = new FlexSearch({
-    profile,
-    ...flexoptions,
+    ...flexsearch,
     doc: {
       id: 'id',
       field: searchFields
