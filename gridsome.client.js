@@ -1,6 +1,6 @@
 import FlexSearch from 'flexsearch'
 
-export default async function (Vue, { flexsearch, searchFields }, { isClient, appOptions }) {
+export default async function (Vue, { flexsearch, searchFields }, { isClient }) {
   if (isClient) {
     const searchIndex = await fetch('/flexsearch.json').then(r => r.json())
     const search = new FlexSearch({
