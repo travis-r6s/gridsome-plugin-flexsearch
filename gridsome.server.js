@@ -45,7 +45,7 @@ function CreateSearchIndex (api, { searchFields = [], collections = [], flexsear
     })
   })
 
-  api.afterBuild(({ queue, config }) => {
+  api.afterBuild(({ config }) => {
     console.log('Saving search index')
     const outputDir = config.outputDir || config.outDir
     const filename = path.join(outputDir, 'flexsearch.json')
