@@ -2,7 +2,8 @@ const path = require('path')
 const fs = require('fs')
 const FlexSearch = require('flexsearch')
 
-function CreateSearchIndex (api, { searchFields = [], collections = [], flexsearch = {} }) {
+function CreateSearchIndex (api, options) {
+  const { searchFields = [], collections = [], flexsearch = {} } = options
   const { profile = 'default', ...flexoptions } = flexsearch
 
   const collectionsToInclude = collections.map(({ typeName }) => typeName)
@@ -15,6 +16,8 @@ function CreateSearchIndex (api, { searchFields = [], collections = [], flexsear
       field: searchFields
     }
   })
+
+  api.setClientOptions({ pathPrefix: api._app.config._pathPrefix, ...options })
 
   api.onCreateNode(node => {
     if (collectionsToInclude.includes(node.internal.typeName)) {
