@@ -17,7 +17,8 @@ function CreateSearchIndex (api, options) {
     }
   })
 
-  api.setClientOptions({ pathPrefix: api._app.config._pathPrefix, ...options })
+  const clientOptions = { pathPrefix: api._app.config._pathPrefix, siteUrl: api._app.config.siteUrl, ...options }
+  api.setClientOptions(clientOptions)
 
   api.onCreateNode(node => {
     if (collectionsToInclude.includes(node.internal.typeName)) {
