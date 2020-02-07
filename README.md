@@ -39,7 +39,7 @@ Firstly, you need to specify what types you want to add to the index with `colle
 | Option  | Explanation |
 | ------------- | ------------- |
 | `typeName`  | The Schema typename - e.g. `Post`. All nodes with this typename will be added to the search index.  |
-| `indexName`  | The name of the index created for this colelction - can be the same as `typeName`.  |
+| `indexName`  | The name of the index created for this collection - can be the same as `typeName`.  |
 | `fields` | An array of keys that will be extracted from each node, and added to the search index doc (what the search result will return when queried).
 
 Now you will need to add the fields that will be included in the index, and searched. Note that this is different from the above `fields` option, as fields will not be searched, they are just what is returned in each result.
