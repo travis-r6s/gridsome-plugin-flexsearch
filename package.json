@@ -1,6 +1,6 @@
 {
   "name": "gridsome-plugin-flexsearch",
-  "version": "0.1.7",
+  "version": "0.1.12",
   "description": "Add lightning fast search to Gridsome with FlexSearch",
   "main": "gridsome.server.js",
   "license": "MIT",
@@ -24,14 +24,14 @@
     "regenerator-runtime": "^0.13.3"
   },
   "devDependencies": {
-    "babel-eslint": "^10.0.3",
-    "eslint": "^6.6.0",
-    "eslint-config-standard": "^14.1.0",
-    "eslint-config-travisreynolds-node": "1.1.2",
-    "eslint-plugin-html": "^6.0.0",
-    "eslint-plugin-import": "^2.18.2",
-    "eslint-plugin-node": "^10.0.0",
-    "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-standard": "^4.0.1"
+    "babel-eslint": "10.0.3",
+    "eslint": "6.8.0",
+    "eslint-config-standard": "14.1.0",
+    "eslint-config-travisreynolds-node": "1.1.6",
+    "eslint-plugin-html": "6.0.0",
+    "eslint-plugin-import": "2.20.0",
+    "eslint-plugin-node": "11.0.0",
+    "eslint-plugin-promise": "4.2.1",
+    "eslint-plugin-standard": "4.0.1"
   }
 }

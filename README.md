@@ -4,6 +4,8 @@
 
 ## Installation
 
+_Requires at least Gridsome `v0.7.3`_
+
 ```bash
 yarn add gridsome-plugin-flexsearch #or
 npm i gridsome-plugin-flexsearch
