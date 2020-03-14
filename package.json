@@ -21,7 +21,9 @@
   "dependencies": {
     "core-js": "2",
     "flexsearch": "^0.6.32",
-    "regenerator-runtime": "^0.13.3"
+    "lodash.chunk": "^4.2.0",
+    "regenerator-runtime": "^0.13.3",
+    "uuid": "^7.0.2"
   },
   "devDependencies": {
     "babel-eslint": "10.0.3",
