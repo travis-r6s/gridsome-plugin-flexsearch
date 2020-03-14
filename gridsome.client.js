@@ -16,6 +16,7 @@ export default async function (Vue, { flexsearch, chunk = false, searchFields, p
 
     if (!chunk) {
       const searchIndex = await fetch(`${basePath}.json`).then(r => r.json())
+      console.log(searchIndex)
       search.import(searchIndex, { serialize: false })
     } else {
       const { index, docs } = await fetch(`${basePath}/manifest.json`).then(r => r.json())
@@ -23,12 +24,16 @@ export default async function (Vue, { flexsearch, chunk = false, searchFields, p
       const fetchData = id => fetch(`${basePath}/${id}.json`).then(r => r.json())
 
       const indexPromises = index.map(id => fetchData(id))
-      const docsPromises = docs.map(id => fetchData(id))
 
       const searchIndex = await Promise.all(indexPromises)
-      const searchDocs = (await Promise.all(docsPromises)).flat().reduce((docs, [id, doc]) => ({ ...docs, [ id ]: doc }), {})
+      search.import(searchIndex, { index: true, doc: false, serialize: false })
 
-      search.import(searchIndex, { index: true, doc: searchDocs, serialize: false })
+      let searchDocs = {}
+      for await (const id of docs) {
+        const data = await fetchData(id)
+        searchDocs = { ...searchDocs, ...Object.fromEntries(data) }
+      }
+      search.import([searchDocs], { index: false, doc: true, serialize: false })
     }
   }
 }
