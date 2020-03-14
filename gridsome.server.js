@@ -42,19 +42,20 @@ function CreateSearchIndex (api, options) {
   })
 
   api.configureServer(app => {
-    console.log('Serving search index')
+    console.log('Serving search index...')
     const searchIndex = search.export({ serialize: false })
     app.get('/flexsearch.json', (req, res) => {
       res.json(searchIndex)
     })
   })
 
-  api.afterBuild(({ config }) => {
-    console.log('Saving search index')
+  api.afterBuild(async ({ config }) => {
+    console.log('Saving search index...')
     const outputDir = config.outputDir || config.outDir
     const filename = path.join(outputDir, 'flexsearch.json')
     const searchIndex = search.export({ serialize: false })
-    return fs.writeFileSync(filename, JSON.stringify(searchIndex))
+    await fs.writeFileSync(filename, JSON.stringify(searchIndex))
+    console.log('Saved search index.')
   })
 }
 
