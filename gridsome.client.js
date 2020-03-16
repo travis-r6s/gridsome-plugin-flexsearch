@@ -40,10 +40,11 @@ export default async function (Vue, options, { isClient, router, ...app }) {
 
     if (!autoFetch) return
 
-    if (typeof autoFetch === 'string') {
+    if (typeof autoFetch === 'string' || typeof autoFetch === 'object') {
       let loaded = false
-      return router.afterEach(({ path }) => {
-        if (autoFetch === path && !loaded) {
+      const pathsToLoad = typeof autoFetch === 'string' ? [autoFetch] : autoFetch
+      return router.afterEach(({ path: currentPath }) => {
+        if (pathsToLoad.includes(currentPath) && !loaded) {
           loaded = true
           return chunk ? loadChunkMode() : loadNormalMode()
         }
