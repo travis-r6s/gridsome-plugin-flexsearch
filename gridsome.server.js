@@ -106,7 +106,8 @@ function CreateSearchIndex (api, options) {
       }
     }, { ids: [], indexes: {} })
 
-    const chunkedDocs = _chunk(Object.entries(searchDocs), 2000).reduce((manifest, docs) => {
+    const chunkSize = typeof chunk === 'number' ? chunk : 2000
+    const chunkedDocs = _chunk(Object.entries(searchDocs), chunkSize).reduce((manifest, docs) => {
       const chunk = { id: uuid(), docs }
       return {
         ids: [...manifest.ids, chunk.id],
