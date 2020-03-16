@@ -1,6 +1,7 @@
 import FlexSearch from 'flexsearch'
 
-export default async function (Vue, { flexsearch, chunk = false, searchFields, pathPrefix, siteUrl }, { isClient }) {
+export default async function (Vue, options, { isClient, router, ...app }) {
+  const { flexsearch, chunk = false, autoFetch = true, searchFields, pathPrefix, siteUrl } = options
   if (isClient) {
     const basePath = pathPrefix && (process.env.NODE_ENV !== 'development' || location.origin === siteUrl) ? `${pathPrefix}/flexsearch` : '/flexsearch'
 
@@ -14,11 +15,12 @@ export default async function (Vue, { flexsearch, chunk = false, searchFields, p
     })
     Vue.prototype.$search = search
 
-    if (!chunk) {
+    const loadNormalMode = async () => {
       const searchIndex = await fetch(`${basePath}.json`).then(r => r.json())
-      console.log(searchIndex)
       search.import(searchIndex, { serialize: false })
-    } else {
+    }
+
+    const loadChunkMode = async () => {
       const { index, docs } = await fetch(`${basePath}/manifest.json`).then(r => r.json())
 
       const fetchData = id => fetch(`${basePath}/${id}.json`).then(r => r.json())
@@ -35,5 +37,18 @@ export default async function (Vue, { flexsearch, chunk = false, searchFields, p
       }
       search.import([searchDocs], { index: false, doc: true, serialize: false })
     }
+
+    if (!autoFetch) return
+
+    if (typeof autoFetch === 'string') {
+      let loaded = false
+      return router.afterEach(({ path }) => {
+        if (autoFetch === path && !loaded) {
+          loaded = true
+          return chunk ? loadChunkMode() : loadNormalMode()
+        }
+      })
+    } else if (chunk) return loadChunkMode()
+    else return loadNormalMode()
   }
 }

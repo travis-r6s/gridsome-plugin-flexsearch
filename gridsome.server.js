@@ -130,6 +130,8 @@ function CreateSearchIndex (api, options) {
 module.exports = CreateSearchIndex
 
 module.exports.defaultOptions = () => ({
+  chunk: false,
+  autoFetch: true,
   flexsearch: { profile: 'default' },
   searchFields: [],
   collections: []
