@@ -1,6 +1,6 @@
 import FlexSearch from 'flexsearch'
 
-export default async function (Vue, options, { isClient, router, ...app }) {
+export default async function (Vue, options, { isClient, router }) {
   const { flexsearch, chunk = false, autoFetch = true, searchFields, pathPrefix, siteUrl } = options
   if (isClient) {
     const basePath = pathPrefix && (process.env.NODE_ENV !== 'development' || location.origin === siteUrl) ? `${pathPrefix}/flexsearch` : '/flexsearch'
