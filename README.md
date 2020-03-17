@@ -52,6 +52,13 @@ You can also specify optional flexsearch configurations under a `flexsearch` key
 However you can override this profile, or set custom options such as `tokenize`, `resolution` etc. Read the [FlexSearch](https://github.com/nextapps-de/flexsearch#presets) docs to find out more.
 
 
+### Additional Options
+
+| Option | Explanation |
+| ---------- | --------|
+| `chunk` | Defaults to false. If `true` or a Number (doc chunk size), will split up the Flexseach index & docs JSON file to reduce filesizes - useful if you have a huge amount of data. |
+| `autoFetch` | Defaults to true. This plugin will usually automatically fetch and import the generated Flexsearch index & docs as soon as the site is loaded, but if you only want this to happen on a certain route (i.e. `/search`) to reduce other page load times for example, you can specify that route/s with this option, or disable it completely and import yourself with `this.$search/import({ ...`] |
+
 
 ## Usage
 
