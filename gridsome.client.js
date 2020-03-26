@@ -1,26 +1,18 @@
 import FlexSearch from 'flexsearch'
 
 export default async function (Vue, options, { isClient, router }) {
-  const { flexsearch, chunk = false, autoFetch = true, searchFields, pathPrefix, siteUrl } = options
+  const { flexsearch, chunk = false, autoFetch = true, autoSetup = true, searchFields, pathPrefix, siteUrl } = options
+
   if (isClient) {
     const basePath = pathPrefix && (process.env.NODE_ENV !== 'development' || location.origin === siteUrl) ? `${pathPrefix}/flexsearch` : '/flexsearch'
 
-    // Setup global Flexsearch Instance
-    const search = new FlexSearch({
-      ...flexsearch,
-      doc: {
-        id: 'id',
-        field: searchFields
-      }
-    })
-    Vue.prototype.$search = search
-
-    const loadNormalMode = async () => {
+    // Data fetch functions
+    const loadNormalMode = async search => {
       const searchIndex = await fetch(`${basePath}.json`).then(r => r.json())
       search.import(searchIndex, { serialize: false })
     }
 
-    const loadChunkMode = async () => {
+    const loadChunkMode = async search => {
       const { index, docs } = await fetch(`${basePath}/manifest.json`).then(r => r.json())
 
       const fetchData = id => fetch(`${basePath}/${id}.json`).then(r => r.json())
@@ -38,6 +30,32 @@ export default async function (Vue, options, { isClient, router }) {
       search.import([searchDocs], { index: false, doc: true, serialize: false })
     }
 
+    // Manually setup the Flexsearch instance
+    if (!autoSetup) {
+      Vue.prototype.$flexsearch = {
+        flexsearch: {
+          ...flexsearch,
+          doc: {
+            id: 'id',
+            field: searchFields
+          }
+        },
+        basePath,
+        loadIndex: loadNormalMode
+      }
+      return
+    }
+
+    // Setup global Flexsearch Instance
+    const search = new FlexSearch({
+      ...flexsearch,
+      doc: {
+        id: 'id',
+        field: searchFields
+      }
+    })
+    Vue.prototype.$search = search
+
     if (!autoFetch) return
 
     if (typeof autoFetch === 'string' || typeof autoFetch === 'object') {
@@ -46,10 +64,10 @@ export default async function (Vue, options, { isClient, router }) {
       return router.afterEach(({ path: currentPath }) => {
         if (pathsToLoad.includes(currentPath) && !loaded) {
           loaded = true
-          return chunk ? loadChunkMode() : loadNormalMode()
+          return chunk ? loadChunkMode(search) : loadNormalMode(search)
         }
       })
-    } else if (chunk) return loadChunkMode()
-    else return loadNormalMode()
+    } else if (chunk) return loadChunkMode(search)
+    else return loadNormalMode(search)
   }
 }
