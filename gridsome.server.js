@@ -22,13 +22,27 @@ function CreateSearchIndex (api, options) {
   const clientOptions = { pathPrefix: api._app.config._pathPrefix, siteUrl: api._app.config.siteUrl, ...options }
   api.setClientOptions(clientOptions)
 
+  const getNode = ({ typeName, id }) => {
+    const node = api._app.store.getNode(typeName, id)
+    delete node.$loki
+    delete node.$uid
+    return node
+  }
   api.onCreateNode(node => {
     if (collectionsToInclude.includes(node.internal.typeName)) {
       const collectionOptions = collections.find(({ typeName }) => typeName === node.internal.typeName)
       const index = { ...collectionOptions, fields: Array.isArray(searchFields) ? [...searchFields, ...collectionOptions.fields] : collectionOptions.fields }
       const docFields = index.fields.reduce((obj, key) => {
-        let value = node[ key ]
-        if (Array.isArray(value)) value = JSON.stringify(value)
+        const value = node[ key ]
+        if (!value) return { [ key ]: value, ...obj }
+        if (value.typeName) return { [ key ]: getNode(value), ...obj }
+        if (Array.isArray(value)) {
+          if (value[ 0 ].typeName) {
+            const nodes = value.map(node => getNode(node))
+            return { [ key ]: nodes, ...obj }
+          }
+          return { [ key ]: JSON.stringify(value), ...obj }
+        }
         return { [ key ]: value, ...obj }
       }, {})
 
