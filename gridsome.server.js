@@ -37,7 +37,8 @@ function CreateSearchIndex (api, options) {
         if (!value) return { [ key ]: value, ...obj }
         if (value.typeName) return { [ key ]: getNode(value), ...obj }
         if (Array.isArray(value)) {
-          if (value[ 0 ].typeName) {
+          const [firstItem] = value
+          if (firstItem && firstItem.typeName) {
             const nodes = value.map(node => getNode(node))
             return { [ key ]: nodes, ...obj }
           }
