@@ -1,4 +1,5 @@
 import FlexSearch from 'flexsearch'
+import cjson from 'compressed-json'
 
 export default async function (Vue, options, { isClient, router }) {
   const { flexsearch, chunk = false, autoFetch = true, autoSetup = true, searchFields, pathPrefix, siteUrl } = options
@@ -8,14 +9,14 @@ export default async function (Vue, options, { isClient, router }) {
 
     // Data fetch functions
     const loadNormalMode = async search => {
-      const searchIndex = await fetch(`${basePath}.json`).then(r => r.json())
+      const searchIndex = await fetch(`${basePath}.json`).then(r => r.json()).then(j => cjson.decompress(j))
       search.import(searchIndex, { serialize: false })
     }
 
     const loadChunkMode = async search => {
       const { index, docs } = await fetch(`${basePath}/manifest.json`).then(r => r.json())
 
-      const fetchData = id => fetch(`${basePath}/${id}.json`).then(r => r.json())
+      const fetchData = id => fetch(`${basePath}/${id}.json`).then(r => r.json()).then(j => cjson.decompress(j))
 
       const indexPromises = index.map(id => fetchData(id))
 

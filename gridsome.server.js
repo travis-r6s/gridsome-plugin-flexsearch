@@ -1,5 +1,6 @@
 const path = require('path')
 const fs = require('fs')
+const cjson = require('compressed-json')
 const FlexSearch = require('flexsearch')
 const { v4: uuid } = require('uuid')
 const _chunk = require('lodash.chunk')
@@ -72,8 +73,9 @@ function CreateSearchIndex (api, options) {
       })
     } else {
       const searchIndex = search.export({ serialize: false })
+      const compressedIndex = cjson.compress(searchIndex)
       app.get('/flexsearch.json', (req, res) => {
-        res.json(searchIndex)
+        res.json(compressedIndex)
       })
     }
   })
@@ -101,7 +103,8 @@ function CreateSearchIndex (api, options) {
       console.log('Creating search index...')
       const filename = path.join(outputDir, 'flexsearch.json')
       const searchIndex = search.export({ serialize: false })
-      await fs.writeFileSync(filename, JSON.stringify(searchIndex))
+      const compressedIndex = cjson.compress(searchIndex)
+      await fs.writeFileSync(filename, JSON.stringify(compressedIndex))
       console.log('Saved search index.')
     }
   })
@@ -116,7 +119,7 @@ function CreateSearchIndex (api, options) {
         ids: [...manifest.ids, chunk.id],
         indexes: {
           ...manifest.indexes,
-          [ chunk.id ]: chunk.index
+          [ chunk.id ]: cjson.compress(chunk.index)
         }
       }
     }, { ids: [], indexes: {} })
@@ -124,11 +127,12 @@ function CreateSearchIndex (api, options) {
     const chunkSize = typeof chunk === 'number' ? chunk : 2000
     const chunkedDocs = _chunk(Object.entries(searchDocs), chunkSize).reduce((manifest, docs) => {
       const chunk = { id: uuid(), docs }
+
       return {
         ids: [...manifest.ids, chunk.id],
         docs: {
           ...manifest.docs,
-          [ chunk.id ]: chunk.docs
+          [ chunk.id ]: cjson.compress(chunk.docs)
         }
       }
     }, { ids: [], docs: {} })
