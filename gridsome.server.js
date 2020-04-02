@@ -23,12 +23,25 @@ function CreateSearchIndex (api, options) {
   const clientOptions = { pathPrefix: api._app.config._pathPrefix, siteUrl: api._app.config.siteUrl, ...options }
   api.setClientOptions(clientOptions)
 
-  const getNode = ({ typeName, id }) => {
+  function getNode ({ typeName, id }) {
     const node = api._app.store.getNode(typeName, id)
     delete node.$loki
     delete node.$uid
     return node
   }
+
+  function parseArray (array) {
+    const [firstItem] = array
+    if (firstItem && firstItem.typeName) return array.map(node => getNode(node))
+    return JSON.stringify(array)
+  }
+
+  function parseObject (object) {
+    if (Array.isArray(object)) return parseArray(object)
+    if (object.typeName) return getNode(object)
+    return Object.entries(object).reduce((obj, [key, value]) => ({ ...obj, [ key ]: parseObject(value) }), {})
+  }
+
   api.onCreateNode(node => {
     if (collectionsToInclude.includes(node.internal.typeName)) {
       const collectionOptions = collections.find(({ typeName }) => typeName === node.internal.typeName)
@@ -36,15 +49,7 @@ function CreateSearchIndex (api, options) {
       const docFields = index.fields.reduce((obj, key) => {
         const value = node[ key ]
         if (!value) return { [ key ]: value, ...obj }
-        if (value.typeName) return { [ key ]: getNode(value), ...obj }
-        if (Array.isArray(value)) {
-          const [firstItem] = value
-          if (firstItem && firstItem.typeName) {
-            const nodes = value.map(node => getNode(node))
-            return { [ key ]: nodes, ...obj }
-          }
-          return { [ key ]: JSON.stringify(value), ...obj }
-        }
+        if (typeof value === 'object') return { [ key ]: parseObject(value), ...obj }
         return { [ key ]: value, ...obj }
       }, {})
 
