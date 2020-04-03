@@ -393,7 +393,7 @@ eslint-config-standard@^14.1.0:
   resolved "https://registry.yarnpkg.com/eslint-config-standard/-/eslint-config-standard-14.1.1.tgz#830a8e44e7aef7de67464979ad06b406026c56ea"
   integrity sha512-Z9B+VR+JIXRxz21udPTL9HpFMyoMUEeX1G251EQ6e05WD9aPVtVBn09XUmZ259wCMlCDmYDSZG62Hhm+ZTJcUg==
 
-eslint-config-travisreynolds-node@^1.1.8:
+eslint-config-travisreynolds-node@1.1.8:
   version "1.1.8"
   resolved "https://registry.yarnpkg.com/eslint-config-travisreynolds-node/-/eslint-config-travisreynolds-node-1.1.8.tgz#9f225bf3deb195b89335c77fc2a9f7c687949f40"
   integrity sha512-kbu6I6kFy8eT8PoJN+WbII3CfANvPdwXJZj+wbTJAca5CWG1VnQvtSyYPcHFqLJ5davlQeh70Ad4Ctj+TwjxOg==

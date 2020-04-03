@@ -27,6 +27,6 @@
     "uuid": "^7.0.3"
   },
   "devDependencies": {
-    "eslint-config-travisreynolds-node": "^1.1.8"
+    "eslint-config-travisreynolds-node": "1.1.8"
   }
 }
