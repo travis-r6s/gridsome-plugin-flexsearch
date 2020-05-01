@@ -56,6 +56,7 @@ export default async function (Vue, options, { isClient, router }) {
       }
     })
     Vue.prototype.$search = search
+    Vue.prototype.$searchOptions = { basePath }
 
     if (!autoFetch) return
 
