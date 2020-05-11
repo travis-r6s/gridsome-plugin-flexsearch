@@ -116,6 +116,7 @@ function CreateSearchIndex (api, options) {
       }
     })
   }
+
   api.onBootstrap(async () => {
     // Map over collections, and either fetch from remote graphql, or local store. Then flatten the received arrays.
     const docs = (await pMap(collections, async collection => {
