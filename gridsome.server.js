@@ -9,8 +9,6 @@ function CreateSearchIndex (api, options) {
   const { searchFields = [], collections = [], flexsearch = {}, chunk = false } = options
   const { profile = 'default', ...flexoptions } = flexsearch
 
-  const collectionsToInclude = collections.map(({ typeName }) => typeName)
-
   const search = new FlexSearch({
     profile,
     ...flexoptions,
@@ -30,38 +28,58 @@ function CreateSearchIndex (api, options) {
     return node
   }
 
-  function parseArray (array) {
+  function parseArray (array, stringify = true) {
     const [firstItem] = array
     if (firstItem && firstItem.typeName) return array.map(node => getNode(node))
+    if (!stringify) return array
+    // If this is for an index field, we need to stringify it so it can be indexed
     return JSON.stringify(array)
   }
 
-  function parseObject (object) {
-    if (Array.isArray(object)) return parseArray(object)
+  function parseObject (object, stringify = true) {
+    if (Array.isArray(object)) return parseArray(object, stringify)
     if (object.typeName) return getNode(object)
     return Object.entries(object).reduce((obj, [key, value]) => ({ ...obj, [ key ]: parseObject(value) }), {})
   }
 
-  api.onCreateNode(node => {
-    if (collectionsToInclude.includes(node.internal.typeName)) {
-      const collectionOptions = collections.find(({ typeName }) => typeName === node.internal.typeName)
-      const index = { ...collectionOptions, fields: Array.isArray(searchFields) ? [...searchFields, ...collectionOptions.fields] : collectionOptions.fields }
-      const docFields = index.fields.reduce((obj, key) => {
-        const value = node[ key ]
-        if (!value) return { [ key ]: value, ...obj }
-        if (typeof value === 'object') return { [ key ]: parseObject(value), ...obj }
-        return { [ key ]: value, ...obj }
-      }, {})
+  api.onBootstrap(async () => {
+    const docs = collections.flatMap(collection => {
+      const collectionStore = api._app.store.getCollection(collection.typeName)
+      if (!collectionStore) return
 
-      const doc = {
-        index: index.indexName,
-        id: node.id,
-        path: node.path,
-        ...docFields
-      }
+      return collectionStore.data().map(node => {
+        delete node.$loki
+        delete node.$uid
+        // Fields that will be indexed, so must be included & flattened etc
+        const indexFields = searchFields.reduce((obj, key) => {
+          const value = node[ key ]
+          if (!value) return { [ key ]: value, ...obj }
+          if (typeof value === 'object') return { [ key ]: parseObject(value), ...obj }
+          return { [ key ]: value, ...obj }
+        }, {})
 
-      search.add(doc)
-    }
+        // The doc fields that will be returned with the search result
+        // We can either return just the fields a user has chosen, or return the whole node
+        const docFields = collection.fields ? collection.fields.map(field => [field, node[ field ]]) : Object.entries(node)
+        // Get any relations
+        const doc = Object.fromEntries(docFields.map(([key, value]) => {
+          if (!value) return [key, value]
+          if (typeof value === 'object') return [key, parseObject(value, false)]
+          return [key, value]
+        }))
+
+        return {
+          index: collection.indexName,
+          id: node.id,
+          path: node.path,
+          node: doc,
+          ...indexFields
+        }
+      })
+    })
+    search.add(docs)
+
+    console.log(`Added ${docs.length} nodes to Search Index`)
   })
 
   api.configureServer(app => {
