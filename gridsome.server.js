@@ -62,7 +62,6 @@ function CreateSearchIndex (api, options) {
         if (typeof value === 'object') return { [ key ]: parseObject(value), ...obj }
         return { [ key ]: value, ...obj }
       }, {})
-      console.log(indexFields)
 
       // The doc fields that will be returned with the search result
       // We can either return just the fields a user has chosen, or return the whole node
@@ -73,7 +72,6 @@ function CreateSearchIndex (api, options) {
         if (typeof value === 'object') return [key, parseObject(value, false)]
         return [key, value]
       }))
-      console.log(doc)
 
       return {
         index: collection.indexName,
