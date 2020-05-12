@@ -4,7 +4,7 @@
 
 ## Installation
 
-_Requires at least Gridsome `v0.7.3`_
+_Requires at least Gridsome `v0.7.3`, versions `>= 0.1.20` requires Gridsome > `0.7.14`._
 
 ```bash
 yarn add gridsome-plugin-flexsearch #or
