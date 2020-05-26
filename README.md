@@ -4,8 +4,8 @@
 
 1. [Installation](#installation)
 2. [Configuration](#configuration)
-  + [GraphQL Source](#graphql-source)
-  + [Additional Options](#additional-options)
+    - [GraphQL Source](#graphql-source)
+    - [Additional Options](#additional-options)
 3. [Usage](#usage)
 
 ## Installation
