@@ -2,12 +2,11 @@
 
 > Add lightning fast search to Gridsome with FlexSearch
 
-- [gridsome-plugin-flexsearch](#gridsome-plugin-flexsearch)
-  * [Installation](#installation)
-  * [Configuration](#configuration)
-    + [GraphQL Source](#graphql-source)
-    + [Additional Options](#additional-options)
-  * [Usage](#usage)
+1. [Installation](#installation)
+2. [Configuration](#configuration)
+  + [GraphQL Source](#graphql-source)
+  + [Additional Options](#additional-options)
+3. [Usage](#usage)
 
 ## Installation
 
