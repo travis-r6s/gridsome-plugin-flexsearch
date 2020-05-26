@@ -1,26 +1,25 @@
 import FlexSearch from 'flexsearch'
 import cjson from 'compressed-json'
+import pMap from 'p-map'
 
 export default async function (Vue, options, { isClient, router }) {
-  const { flexsearch, chunk = false, autoFetch = true, autoSetup = true, searchFields, pathPrefix, siteUrl } = options
+  const { flexsearch, chunk = false, compress = false, autoFetch = true, autoSetup = true, searchFields, pathPrefix, siteUrl } = options
 
   if (isClient) {
     const basePath = pathPrefix && (process.env.NODE_ENV !== 'development' || location.origin === siteUrl) ? `${pathPrefix}/flexsearch` : '/flexsearch'
 
     // Data fetch functions
     const loadNormalMode = async search => {
-      const searchIndex = await fetch(`${basePath}.json`).then(r => r.json()).then(j => cjson.decompress(j))
+      let searchIndex = await fetch(`${basePath}.json`).then(r => r.json())
+      if (compress) searchIndex = cjson.decompress(searchIndex)
       search.import(searchIndex, { serialize: false })
     }
 
     const loadChunkMode = async search => {
       const { index, docs } = await fetch(`${basePath}/manifest.json`).then(r => r.json())
+      const fetchData = id => fetch(`${basePath}/${id}.json`).then(r => r.json()).then(j => compress ? cjson.decompress(j) : j)
 
-      const fetchData = id => fetch(`${basePath}/${id}.json`).then(r => r.json()).then(j => cjson.decompress(j))
-
-      const indexPromises = index.map(id => fetchData(id))
-
-      const searchIndex = await Promise.all(indexPromises)
+      const searchIndex = await pMap(index, id => fetchData())
       search.import(searchIndex, { index: true, doc: false, serialize: false })
 
       let searchDocs = {}
