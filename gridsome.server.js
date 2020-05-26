@@ -1,4 +1,5 @@
 const _chunk = require('lodash.chunk')
+const _get = require('lodash.get')
 const cjson = require('compressed-json')
 const FlexSearch = require('flexsearch')
 const fs = require('fs')
@@ -73,9 +74,10 @@ function CreateSearchIndex (api, options) {
         return [key, value]
       }))
 
+      // All other fields used will be added as the node field on the doc
       return {
+        id: uuid(),
         index: collection.indexName,
-        id: node.id,
         path: node.path,
         node: doc,
         ...indexFields
@@ -84,17 +86,11 @@ function CreateSearchIndex (api, options) {
   }
 
   // Function to get collection from GraphQL server (using internal remote schema) and transform nodes
-  async function getGraphQLCollection ({ indexName, fields, graphql: path }) {
-    const singleFields = fields.filter(field => typeof field === 'string')
-    const nestedFields = fields.filter(field => typeof field === 'object').map(([field, ...fields]) => `${field} { id ${fields.join(' ')} }`)
-
-    // Create the GraphQL query, joining the fields and path together
-    const query = path.split('.').reverse().reduce((q, key) => `${key} { `.concat(q).concat(` }`), `id ${[...singleFields, ...nestedFields].join(' ')}`)
-
+  async function getGraphQLCollection ({ indexName, query, path }) {
     // Query data, throw errors, then get the nodes with the provided path
-    const { data, errors } = await api._app.graphql(`{ ${query}}`)
+    const { data, errors } = await api._app.graphql(query)
     if (errors) return console.log(errors[ 0 ])
-    const nodes = path.split('.').reduce((obj, key) => obj[ key ], data)
+    const nodes = _get(data, path, [])
 
     return nodes.map(node => {
       // Fields that will be indexed, so must be included & flattened etc
@@ -105,9 +101,10 @@ function CreateSearchIndex (api, options) {
         return { [ key ]: value, ...obj }
       }, {})
 
+      // All other fields used will be added as the node field on the doc
       return {
+        id: uuid(),
         index: indexName,
-        id: node.id,
         path: node.path,
         node,
         ...indexFields
@@ -115,10 +112,11 @@ function CreateSearchIndex (api, options) {
     })
   }
 
+  // After the store has been created/updated, start the index import.
   api.onBootstrap(async () => {
-    // Map over collections, and either fetch from remote graphql, or local store. Then flatten the received arrays.
-    const docs = (await pMap(collections, async collection => {
-      if (collection.graphql) return getGraphQLCollection(collection)
+    // Map over collections, and either fetch from remote graphql or local store. Then flatten the received arrays.
+    const docs = (await pMap(collections, collection => {
+      if (collection.query) return getGraphQLCollection(collection)
       return getStoreCollection(collection)
     })).flat()
 
@@ -144,7 +142,7 @@ function CreateSearchIndex (api, options) {
       let searchIndex = search.export({ serialize: false })
       if (compress) searchIndex = cjson.compress(searchIndex)
       app.get('/flexsearch.json', (req, res) => {
-        res.json(compressedIndex)
+        res.json(searchIndex)
       })
     }
   })
