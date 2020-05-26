@@ -2,6 +2,10 @@
 
 > Add lightning fast search to Gridsome with FlexSearch
 
+*Demo: https://gridsome-shopify-starter.netlify.app*
+
+Table of contents:
+
 1. [Installation](#installation)
 2. [Configuration](#configuration)
     - [GraphQL Source](#graphql-source)
