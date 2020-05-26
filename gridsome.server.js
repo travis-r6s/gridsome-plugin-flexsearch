@@ -7,7 +7,7 @@ const path = require('path')
 const pMap = require('p-map')
 const { v4: uuid } = require('uuid')
 
-function CreateSearchIndex (api, options) {
+function FlexSearch (api, options) {
   // Setup defaults
   const { searchFields = [], collections = [], flexsearch = {}, chunk = false, compress = false } = options
   const { profile = 'default', ...flexoptions } = flexsearch
@@ -218,7 +218,7 @@ function CreateSearchIndex (api, options) {
   }
 }
 
-module.exports = CreateSearchIndex
+module.exports = FlexSearch
 
 module.exports.defaultOptions = () => ({
   chunk: false,
