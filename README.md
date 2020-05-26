@@ -101,7 +101,7 @@ This plugin also supports using the GraphQL source plugin. This requires a bit m
 | `query` | A GraphQL query that will return all the data needed for the `searchFields` as well as any extra node data. |
 | `path` | The path to the nodes array data returned from the GraphQL Query, using any [Lodash Get](https://lodash.com/docs/4.17.15#get) methods. |
 
-An example of this setup is shown below, using the [GraphQL source plugin](https://gridsome.org/plugins/@gridsome/source-graphql) with [WPGraphql](https://www.wpgraphql.com):
+An example of this setup is shown below, using the [GraphQL source plugin](https://gridsome.org/plugins/@gridsome/source-graphql) with [WPGraphQL](https://www.wpgraphql.com):
 
 `gridsome.config.js`
 ```js
