@@ -57,7 +57,8 @@ function CreateSearchIndex (api, options) {
       delete node.$loki
       delete node.$uid
       // Fields that will be indexed, so must be included & flattened etc
-      const indexFields = searchFields.reduce((obj, key) => {
+      const searchFieldKeys = Array.isArray(searchFields) ? searchFields : Object.keys(searchFields)
+      const indexFields = searchFieldKeys.reduce((obj, key) => {
         const value = node[ key ]
         if (!value) return { [ key ]: value, ...obj }
         if (typeof value === 'object') return { [ key ]: parseObject(value), ...obj }
@@ -94,7 +95,8 @@ function CreateSearchIndex (api, options) {
 
     return nodes.map(node => {
       // Fields that will be indexed, so must be included & flattened etc
-      const indexFields = searchFields.reduce((obj, key) => {
+      const searchFieldKeys = Array.isArray(searchFields) ? searchFields : Object.keys(searchFields)
+      const indexFields = searchFieldKeys.reduce((obj, key) => {
         const value = node[ key ]
         if (!value) return { [ key ]: value, ...obj }
         if (typeof value === 'object') return { [ key ]: parseObject(value), ...obj }
