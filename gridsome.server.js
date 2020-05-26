@@ -8,7 +8,7 @@ const { v4: uuid } = require('uuid')
 
 function CreateSearchIndex (api, options) {
   // Setup defaults
-  const { searchFields = [], collections = [], flexsearch = {}, chunk = false } = options
+  const { searchFields = [], collections = [], flexsearch = {}, chunk = false, compress = false } = options
   const { profile = 'default', ...flexoptions } = flexsearch
 
   // Create base FlexSearch instance
@@ -141,8 +141,8 @@ function CreateSearchIndex (api, options) {
         res.json(chunks[ chunkName ])
       })
     } else {
-      const searchIndex = search.export({ serialize: false })
-      const compressedIndex = cjson.compress(searchIndex)
+      let searchIndex = search.export({ serialize: false })
+      if (compress) searchIndex = cjson.compress(searchIndex)
       app.get('/flexsearch.json', (req, res) => {
         res.json(compressedIndex)
       })
@@ -172,9 +172,9 @@ function CreateSearchIndex (api, options) {
     } else {
       console.log('Creating search index...')
       const filename = path.join(outputDir, 'flexsearch.json')
-      const searchIndex = search.export({ serialize: false })
-      const compressedIndex = cjson.compress(searchIndex)
-      await fs.writeFileSync(filename, JSON.stringify(compressedIndex))
+      let searchIndex = search.export({ serialize: false })
+      if (compress) searchIndex = cjson.compress(searchIndex)
+      await fs.writeFileSync(filename, JSON.stringify(searchIndex))
       console.log('Saved search index.')
     }
   })
@@ -190,7 +190,7 @@ function CreateSearchIndex (api, options) {
         ids: [...manifest.ids, chunk.id],
         indexes: {
           ...manifest.indexes,
-          [ chunk.id ]: cjson.compress(chunk.index)
+          [ chunk.id ]: compress ? cjson.compress(chunk.index) : chunk.index
         }
       }
     }, { ids: [], indexes: {} })
@@ -222,6 +222,7 @@ module.exports = CreateSearchIndex
 
 module.exports.defaultOptions = () => ({
   chunk: false,
+  compress: false,
   autoFetch: true,
   autoSetup: true,
   flexsearch: { profile: 'default' },
