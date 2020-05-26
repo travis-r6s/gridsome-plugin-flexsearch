@@ -6,6 +6,7 @@
 2. [Configuration](#configuration)
   + [GraphQL Source](#graphql-source)
   + [Additional Options](#additional-options)
+  + [FlexSearch Options](#flexsearch-options)
 3. [Usage](#usage)
 
 ## Installation
@@ -142,6 +143,7 @@ module.exports = {
 | `autoFetch` | Defaults to true. This plugin will usually automatically fetch and import the generated FlexSearch index & docs as soon as the site is loaded, but if you only want this to happen on a certain route to reduce other page load times for example (i.e. `/search`), you can specify that route with this option, or disable it completely and import yourself with `this.$search/import({ ...`] |
 
 Some examples of these configurations are shown below:
+
 `gridsome.config.js`
 ```js
 // ...
@@ -152,6 +154,23 @@ options: {
   // Or
   chunk: 1000,
   autoFetch: ['/search', '/collections'],
+  // ...
+}
+// ...
+```
+
+### FlexSearch Options
+
+Custom FlexSearch options can be configured under the `flexsearch` key, for example setting default profiles, or adding custom matchers/encoders.
+
+`gridsome.config.js`
+```js
+// ...
+options: {
+  flexsearch: {
+    cache: true,
+    profile: 'match'
+  }
   // ...
 }
 // ...
