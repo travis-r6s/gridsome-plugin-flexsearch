@@ -28,6 +28,9 @@
     "regenerator-runtime": "^0.13.5",
     "uuid": "^8.1.0"
   },
+  "peerDependencies": {
+    "gridsome": ">=0.7.15"
+  },
   "devDependencies": {
     "eslint-config-travisreynolds-node": "1.1.8"
   }
