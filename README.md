@@ -63,6 +63,7 @@ Next, you need to specify what types you want to add to the index with `collecti
 Fields will be returned with the search result under a `node` key, so for example you could include a product title, slug, and image to show the product name & image in the search result, and add a link to the relevant page.
 
 An example setup is shown below, assuming there is a `Post` and a `Collection` type:
+
 `gridsome.config.js`
 ```js
 module.exports = {
