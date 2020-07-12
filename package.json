@@ -18,6 +18,9 @@
     "flexsearch",
     "search"
   ],
+  "engines": {
+    "node": ">=12.x"
+  },
   "dependencies": {
     "compressed-json": "^1.0.15",
     "core-js": "^3.6.5",
