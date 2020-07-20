@@ -13,7 +13,7 @@ Table of contents:
 
 ## Installation
 
-_Requires at least Gridsome `v0.7.3`, versions `>= 0.1.21` requires Gridsome > `0.7.15`._
+_Requires a Node version >=12.x, and at least Gridsome `v0.7.3`, versions `>= 0.1.21` requires Gridsome > `0.7.15`._
 
 ```bash
 yarn add gridsome-plugin-flexsearch # or
