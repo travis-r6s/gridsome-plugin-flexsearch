@@ -44,7 +44,7 @@ function FlexSearchIndex (api, options) {
   }
 
   function parseObject (object, stringify = true) {
-    if (Array.isArray(object)) return parseArray(object, stringify)
+    if (object instanceof Array) return parseArray(object, stringify)
     if (object.typeName) return getNode(object)
     return Object.entries(object).reduce((obj, [key, value]) => ({ ...obj, [ key ]: parseObject(value) }), {})
   }
@@ -61,7 +61,8 @@ function FlexSearchIndex (api, options) {
       const indexFields = searchFieldKeys.reduce((obj, key) => {
         const value = node[ key ]
         if (!value) return { [ key ]: value, ...obj }
-        if (typeof value === 'object') return { [ key ]: parseObject(value), ...obj }
+        if (value instanceof Date) return { [ key ]: value.toISOString(), ...obj }
+        if (value instanceof Object) return { [ key ]: parseObject(value), ...obj }
         return { [ key ]: value, ...obj }
       }, {})
 
@@ -71,7 +72,8 @@ function FlexSearchIndex (api, options) {
       // Get any relations
       const doc = Object.fromEntries(docFields.map(([key, value]) => {
         if (!value) return [key, value]
-        if (typeof value === 'object') return [key, parseObject(value, false)]
+        if (value instanceof Date) return [key, value.toISOString()]
+        if (value instanceof Object) return [key, parseObject(value, false)]
         return [key, value]
       }))
 
@@ -99,7 +101,7 @@ function FlexSearchIndex (api, options) {
       const indexFields = searchFieldKeys.reduce((obj, key) => {
         const value = node[ key ]
         if (!value) return { [ key ]: value, ...obj }
-        if (typeof value === 'object') return { [ key ]: parseObject(value), ...obj }
+        if (value instanceof Object) return { [ key ]: parseObject(value), ...obj }
         return { [ key ]: value, ...obj }
       }, {})
 
