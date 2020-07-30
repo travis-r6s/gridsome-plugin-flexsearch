@@ -1,11 +1,18 @@
+const FlexSearch = require('flexsearch')
 const _chunk = require('lodash.chunk')
 const _get = require('lodash.get')
 const cjson = require('compressed-json')
-const FlexSearch = require('flexsearch')
+const consola = require('consola')
 const fs = require('fs')
-const path = require('path')
 const pMap = require('p-map')
+const path = require('path')
 const { v4: uuid } = require('uuid')
+
+const console = consola.create({
+  defaults: {
+    tag: 'gridsome-plugin-flexsearch'
+  }
+})
 
 function FlexSearchIndex (api, options) {
   // Setup defaults
@@ -94,7 +101,7 @@ function FlexSearchIndex (api, options) {
   async function getGraphQLCollection ({ indexName, query, path }) {
     // Query data, throw errors, then get the nodes with the provided path
     const { data, errors } = await api._app.graphql(query)
-    if (errors) return console.log(errors[ 0 ])
+    if (errors) return console.error(errors[ 0 ])
     const nodes = _get(data, path, [])
 
     return nodes.map(node => {
@@ -128,12 +135,12 @@ function FlexSearchIndex (api, options) {
 
     // Add to search index
     search.add(docs)
-    console.log(`Added ${docs.length} nodes to Search Index`)
+    console.info(`Added ${docs.length} nodes to Search Index`)
   })
 
   // Setup an endpoint for the dev server
   api.configureServer(app => {
-    console.log('Serving search index...')
+    console.info('Serving search index...')
     if (chunk) {
       const { manifest, chunks } = createManifest()
       app.get('/flexsearch/manifest.json', (req, res) => {
@@ -158,7 +165,7 @@ function FlexSearchIndex (api, options) {
     const outputDir = config.outputDir || config.outDir
 
     if (chunk) {
-      console.log('Creating search index (chunked mode)...')
+      console.info('Creating search index (chunked mode)...')
       const flexsearchDir = path.join(outputDir, 'flexsearch')
       const manifestFilename = path.join(flexsearchDir, 'manifest.json')
 
@@ -172,14 +179,14 @@ function FlexSearchIndex (api, options) {
         await fs.writeFileSync(chunkFilename, JSON.stringify(data))
       }
 
-      console.log('Saved search index.')
+      console.info('Saved search index.')
     } else {
-      console.log('Creating search index...')
+      console.info('Creating search index...')
       const filename = path.join(outputDir, 'flexsearch.json')
       let searchIndex = search.export({ serialize: false })
       if (compress) searchIndex = cjson.compress(searchIndex)
       await fs.writeFileSync(filename, JSON.stringify(searchIndex))
-      console.log('Saved search index.')
+      console.info('Saved search index.')
     }
   })
 
