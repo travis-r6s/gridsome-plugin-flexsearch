@@ -29,6 +29,8 @@ function FlexSearchIndex (api, options) {
   // Simple function to get Node from store, and remove internal refs
   function getNode ({ typeName, id }) {
     const node = api._app.store.getNode(typeName, id)
+    if (!node) return
+
     delete node.$loki
     delete node.$uid
     return node
