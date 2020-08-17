@@ -46,7 +46,7 @@ function FlexSearchIndex (api, options) {
   function parseObject (object, stringify = true) {
     if (object instanceof Array) return parseArray(object, stringify)
     if (object.typeName) return getNode(object)
-    return Object.entries(object).reduce((obj, [key, value]) => ({ ...obj, [ key ]: parseObject(value) }), {})
+    return Object.entries(object).reduce((obj, [key, value]) => ({ ...obj, [ key ]: value instanceof Object?parseObject(value):value }), {})
   }
 
   // Function to get collection from store, and transform nodes
