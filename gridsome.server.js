@@ -55,7 +55,7 @@ function FlexSearchIndex (api, options) {
   function parseObject (object, stringify = true) {
     if (object instanceof Array) return parseArray(object, stringify)
     if (object.typeName) return getNode(object)
-    return Object.entries(object).reduce((obj, [key, value]) => ({ ...obj, [ key ]: value instanceof Object ? parseObject(value) : value }), {})
+    return Object.fromEntries(Object.entries(object).map(([key, value]) => [key, value instanceof Object ? parseObject(value) : value]))
   }
 
   // Function to get collection from store, and transform nodes
@@ -67,13 +67,13 @@ function FlexSearchIndex (api, options) {
       delete node.$uid
       // Fields that will be indexed, so must be included & flattened etc
       const searchFieldKeys = Array.isArray(searchFields) ? searchFields : Object.keys(searchFields)
-      const indexFields = searchFieldKeys.reduce((obj, key) => {
+      const indexFields = Object.fromEntries(searchFieldKeys.map(key => {
         const value = node[ key ]
-        if (!value) return { [ key ]: value, ...obj }
-        if (value instanceof Date) return { [ key ]: value.toISOString(), ...obj }
-        if (value instanceof Object) return { [ key ]: parseObject(value), ...obj }
-        return { [ key ]: value, ...obj }
-      }, {})
+        if (!value) return [key, value]
+        if (value instanceof Date) return [key, value.toISOString()]
+        if (value instanceof Object) return [key, parseObject(value)]
+        return [key, value]
+      }))
 
       // The doc fields that will be returned with the search result
       // We can either return just the fields a user has chosen, or return the whole node
@@ -107,12 +107,13 @@ function FlexSearchIndex (api, options) {
     return nodes.map(node => {
       // Fields that will be indexed, so must be included & flattened etc
       const searchFieldKeys = Array.isArray(searchFields) ? searchFields : Object.keys(searchFields)
-      const indexFields = searchFieldKeys.reduce((obj, key) => {
+      const indexFields = Object.fromEntries(searchFieldKeys.map(key => {
         const value = node[ key ]
-        if (!value) return { [ key ]: value, ...obj }
-        if (value instanceof Object) return { [ key ]: parseObject(value), ...obj }
-        return { [ key ]: value, ...obj }
-      }, {})
+        if (!value) return [key, value]
+        if (value instanceof Date) return [key, value.toISOString()]
+        if (value instanceof Object) return [key, parseObject(value)]
+        return [key, value]
+      }))
 
       // All other fields used will be added as the node field on the doc
       return {
