@@ -1,6 +1,6 @@
 {
   "name": "gridsome-plugin-flexsearch",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Add lightning fast search to Gridsome with FlexSearch",
   "main": "gridsome.server.js",
   "license": "MIT",
