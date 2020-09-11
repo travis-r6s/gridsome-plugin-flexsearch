@@ -36,6 +36,6 @@
     "gridsome": ">=0.7.15"
   },
   "devDependencies": {
-    "eslint-config-travisreynolds-node": "1.1.8"
+    "eslint-config-travisreynolds-node": "1.2.0"
   }
 }
