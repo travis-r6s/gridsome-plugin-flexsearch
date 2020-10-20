@@ -19,7 +19,7 @@ export default async function (Vue, options, { isClient, router }) {
       const { index, docs } = await fetch(`${basePath}/manifest.json`).then(r => r.json())
       const fetchData = id => fetch(`${basePath}/${id}.json`).then(r => r.json()).then(j => compress ? cjson.decompress(j) : j)
 
-      const searchIndex = await pMap(index, id => fetchData())
+      const searchIndex = await pMap(index, fetchData)
       search.import(searchIndex, { index: true, doc: false, serialize: false })
 
       let searchDocs = {}
