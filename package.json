@@ -26,6 +26,7 @@
     "consola": "^2.15.0",
     "core-js": "^3.6.5",
     "flexsearch": "^0.6.32",
+    "gql-query-builder": "^3.5.0",
     "lodash.chunk": "^4.2.0",
     "nanoid": "^3.1.16",
     "p-map": "^4.0.0",
