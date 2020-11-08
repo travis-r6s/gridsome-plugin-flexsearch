@@ -1,12 +1,11 @@
 const FlexSearch = require('flexsearch')
 const _chunk = require('lodash.chunk')
-const _get = require('lodash.get')
 const cjson = require('compressed-json')
 const consola = require('consola')
 const fs = require('fs')
 const pMap = require('p-map')
 const path = require('path')
-const { v4: uuid } = require('uuid')
+const { nanoid } = require('nanoid')
 
 const console = consola.create({
   defaults: {
@@ -88,7 +87,7 @@ function FlexSearchIndex (api, options) {
 
       // All other fields used will be added as the node field on the doc
       return {
-        id: uuid(),
+        id: nanoid(),
         index: collection.indexName,
         path: node.path,
         node: doc,
@@ -102,7 +101,7 @@ function FlexSearchIndex (api, options) {
     // Query data, throw errors, then get the nodes with the provided path
     const { data, errors } = await api._app.graphql(query)
     if (errors) return console.error(errors[ 0 ])
-    const nodes = _get(data, path, [])
+    const nodes = path.split('.').reduce((value, key) => value[ key ], data)
 
     return nodes.map(node => {
       // Fields that will be indexed, so must be included & flattened etc
@@ -117,7 +116,7 @@ function FlexSearchIndex (api, options) {
 
       // All other fields used will be added as the node field on the doc
       return {
-        id: uuid(),
+        id: nanoid(),
         index: indexName,
         path: node.path,
         node,
@@ -197,7 +196,7 @@ function FlexSearchIndex (api, options) {
     const [searchDocs] = search.export({ serialize: false, index: false, doc: true })
 
     const chunkedIndex = searchIndex.reduce((manifest, index) => {
-      const chunk = { id: uuid(), index }
+      const chunk = { id: nanoid(), index }
       return {
         ids: [...manifest.ids, chunk.id],
         indexes: {
@@ -209,7 +208,7 @@ function FlexSearchIndex (api, options) {
 
     const chunkSize = typeof chunk === 'number' ? chunk : 2000
     const chunkedDocs = _chunk(Object.entries(searchDocs), chunkSize).reduce((manifest, docs) => {
-      const chunk = { id: uuid(), docs }
+      const chunk = { id: nanoid(), docs }
 
       return {
         ids: [...manifest.ids, chunk.id],
@@ -221,7 +220,7 @@ function FlexSearchIndex (api, options) {
     }, { ids: [], docs: {} })
 
     const manifest = {
-      hash: uuid(),
+      hash: nanoid(),
       index: chunkedIndex.ids,
       docs: chunkedDocs.ids
     }

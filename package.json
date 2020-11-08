@@ -27,10 +27,9 @@
     "core-js": "^3.6.5",
     "flexsearch": "^0.6.32",
     "lodash.chunk": "^4.2.0",
-    "lodash.get": "^4.4.2",
+    "nanoid": "^3.1.16",
     "p-map": "^4.0.0",
-    "regenerator-runtime": "^0.13.7",
-    "uuid": "^8.3.1"
+    "regenerator-runtime": "^0.13.7"
   },
   "peerDependencies": {
     "gridsome": ">=0.7.15"
