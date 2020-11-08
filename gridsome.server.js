@@ -6,8 +6,9 @@ const fs = require('fs')
 const pMap = require('p-map')
 const path = require('path')
 const { nanoid } = require('nanoid')
+const gql = require('gql-query-builder')
 
-const console = consola.create({
+const reporter = consola.create({
   defaults: {
     tag: 'gridsome-plugin-flexsearch'
   }
@@ -32,108 +33,78 @@ function FlexSearchIndex (api, options) {
   const clientOptions = { pathPrefix: api._app.config._pathPrefix, siteUrl: api._app.config.siteUrl, ...options }
   api.setClientOptions(clientOptions)
 
-  // Simple function to get Node from store, and remove internal refs
-  function getNode ({ typeName, id }) {
-    const node = api._app.store.getNode(typeName, id)
-    if (!node) return
+  // Function to get collection from graphql, and transform nodes
+  async function getCollection (collection, { composer, graphql }) {
+    let type
+    try {
+      type = composer.getOTC(collection.typeName)
+    } catch (error) {
+      reporter.error(`Collection ${collection.typeName} does not exist in schema, skipping.`)
+      return []
+    }
 
-    delete node.$loki
-    delete node.$uid
-    return node
-  }
+    const fields = [...new Set([...collection.fields, ...searchFields, 'id'])]
 
-  // Functions to recursively fetch relations, and normalize data
-  function parseArray (array, stringify = true) {
-    const [firstItem] = array
-    if (firstItem && firstItem.typeName) return array.map(node => getNode(node))
-    if (!stringify) return array
-    // If this is for an index field, we need to stringify it so it can be indexed
-    return JSON.stringify(array)
-  }
+    const queryFields = fields.flatMap(key => {
+      let field
+      try {
+        field = type.getField(key)
+      } catch (error) {
+        if (collection.fields.includes(key)) {
+          reporter.warn(`Field ${key} does not exist in type ${collection.typeName}, skipping.`)
+        }
+        return []
+      }
 
-  function parseObject (object, stringify = true) {
-    if (object instanceof Array) return parseArray(object, stringify)
-    if (object.typeName) return getNode(object)
-    return Object.fromEntries(Object.entries(object).map(([key, value]) => [key, value instanceof Object ? parseObject(value) : value]))
-  }
+      if (composer.isScalarType(field.type)) return key
+      if (composer.isObjectType(field.type)) {
+        const subFields = field.type.getFields()
+        const scalarFields = Object.entries(subFields).filter(([name, field]) => composer.isScalarType(field.type)).map(([name]) => name)
 
-  // Function to get collection from store, and transform nodes
-  function getStoreCollection (collection) {
-    const collectionStore = api._app.store.getCollection(collection.typeName)
-    if (!collectionStore) return
-    return collectionStore.data().map(node => {
-      delete node.$loki
-      delete node.$uid
-      // Fields that will be indexed, so must be included & flattened etc
-      const searchFieldKeys = Array.isArray(searchFields) ? searchFields : Object.keys(searchFields)
-      const indexFields = Object.fromEntries(searchFieldKeys.map(key => {
+        if (!scalarFields.length) return []
+        return { [ key ]: scalarFields }
+      }
+      // Fallback
+      return []
+    })
+
+    const operationName = `all${collection.typeName}`
+    const { query } = gql.query({
+      operation: operationName,
+      fields: [{ edges: [{ node: queryFields }] }]
+    })
+
+    const { data, errors } = await graphql(query)
+    if (errors) {
+      reporter.error(errors[ 0 ].message)
+      return []
+    }
+
+    const nodes = data[ operationName ].edges.map(({ node }) => node)
+
+    return nodes.map(node => {
+      const indexFields = Object.fromEntries(searchFields.map(key => {
         const value = node[ key ]
-        if (!value) return [key, value]
-        if (value instanceof Date) return [key, value.toISOString()]
-        if (value instanceof Object) return [key, parseObject(value)]
-        return [key, value]
+        return Array.isArray(value) ? [key, JSON.stringify(value)] : [key, value]
       }))
 
-      // The doc fields that will be returned with the search result
-      // We can either return just the fields a user has chosen, or return the whole node
-      const docFields = collection.fields ? collection.fields.map(field => [field, node[ field ]]) : Object.entries(node)
-      // Get any relations
-      const doc = Object.fromEntries(docFields.map(([key, value]) => {
-        if (!value) return [key, value]
-        if (value instanceof Date) return [key, value.toISOString()]
-        if (value instanceof Object) return [key, parseObject(value, false)]
-        return [key, value]
-      }))
-
-      // All other fields used will be added as the node field on the doc
       return {
         id: nanoid(),
         index: collection.indexName,
-        path: node.path,
-        node: doc,
-        ...indexFields
-      }
-    })
-  }
-
-  // Function to get collection from GraphQL server (using internal remote schema) and transform nodes
-  async function getGraphQLCollection ({ indexName, query, path }) {
-    // Query data, throw errors, then get the nodes with the provided path
-    const { data, errors } = await api._app.graphql(query)
-    if (errors) return console.error(errors[ 0 ])
-    const nodes = path.split('.').reduce((value, key) => value[ key ], data)
-
-    return nodes.map(node => {
-      // Fields that will be indexed, so must be included & flattened etc
-      const searchFieldKeys = Array.isArray(searchFields) ? searchFields : Object.keys(searchFields)
-      const indexFields = Object.fromEntries(searchFieldKeys.map(key => {
-        const value = node[ key ]
-        if (!value) return [key, value]
-        if (value instanceof Date) return [key, value.toISOString()]
-        if (value instanceof Object) return [key, parseObject(value)]
-        return [key, value]
-      }))
-
-      // All other fields used will be added as the node field on the doc
-      return {
-        id: nanoid(),
-        index: indexName,
-        path: node.path,
         node,
         ...indexFields
       }
     })
   }
 
-  // After the store has been created/updated, start the index import.
+  // After the Store has been filled, and the Schema has been created, start the index import.
   api.onBootstrap(async () => {
-    // Map over collections, and either fetch from remote graphql or local store. Then flatten the received arrays.
-    const docs = (await pMap(collections, collection => {
-      if (collection.query) return getGraphQLCollection(collection)
-      return getStoreCollection(collection)
-    })).flat()
+    const graphql = api._app.graphql
+    const composer = api._app.schema.getComposer()
 
-    // Add to search index
+    const docsArrays = await pMap(collections, collection => getCollection(collection, { graphql, composer }))
+    const docs = docsArrays.flat()
+
     search.add(docs)
     console.info(`Added ${docs.length} nodes to Search Index`)
   })
