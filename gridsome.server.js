@@ -36,11 +36,8 @@ function FlexSearchIndex (api, options) {
 
   // Function to get collection from graphql, and transform nodes
   async function getCollection (collection, { schema, graphql }) {
-    let type
-    try {
-      type = schema.getType(collection.typeName)
-      console.log(type)
-    } catch (error) {
+    const type = schema.getType(collection.typeName)
+    if (!type) {
       reporter.error(`Collection ${collection.typeName} does not exist in schema, skipping.`)
       return []
     }
