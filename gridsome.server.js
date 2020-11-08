@@ -45,12 +45,14 @@ function FlexSearchIndex (api, options) {
     const fields = [...new Set([...collection.fields, ...searchFields, 'id'])]
     const typeFields = type.getFields()
 
-    const getFields = field => {
-      if (!field) return []
+    const excludeFields = ['pageInfo', 'belongsTo']
+    const getFields = (field, fetched = []) => {
+      if (!field || excludeFields.includes(field.name)) return []
+
       const type = getNamedType(field.type)
       if (isScalarType(type)) return field.name
-      if (isObjectType(type)) {
-        const scalarFields = Object.values(type.getFields()).flatMap(getFields)
+      if (isObjectType(type) && !fetched.includes(field.name)) {
+        const scalarFields = Object.values(type.getFields()).flatMap(subField => getFields(subField, [...fetched, field.name]))
         if (!scalarFields.length) return []
         return { [ field.name ]: scalarFields }
       }
