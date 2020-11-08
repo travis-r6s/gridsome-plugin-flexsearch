@@ -16,12 +16,12 @@ const console = consola.create({
 function FlexSearchIndex (api, options) {
   // Setup defaults
   const { searchFields = [], collections = [], flexsearch = {}, chunk = false, compress = false } = options
-  const { profile = 'default', ...flexoptions } = flexsearch
+  const { profile = 'default', ...flexOptions } = flexsearch
 
   // Create base FlexSearch instance
   const search = new FlexSearch({
     profile,
-    ...flexoptions,
+    ...flexOptions,
     doc: {
       id: 'id',
       field: searchFields
