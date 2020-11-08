@@ -7,6 +7,7 @@ const pMap = require('p-map')
 const path = require('path')
 const { nanoid } = require('nanoid')
 const gql = require('gql-query-builder')
+const { getNamedType, isScalarType, isObjectType } = require('gridsome/graphql')
 
 const reporter = consola.create({
   defaults: {
@@ -34,38 +35,39 @@ function FlexSearchIndex (api, options) {
   api.setClientOptions(clientOptions)
 
   // Function to get collection from graphql, and transform nodes
-  async function getCollection (collection, { composer, graphql }) {
+  async function getCollection (collection, { schema, graphql }) {
     let type
     try {
-      type = composer.getOTC(collection.typeName)
+      type = schema.getType(collection.typeName)
+      console.log(type)
     } catch (error) {
       reporter.error(`Collection ${collection.typeName} does not exist in schema, skipping.`)
       return []
     }
 
     const fields = [...new Set([...collection.fields, ...searchFields, 'id'])]
+    const typeFields = type.getFields()
+
+    const getFields = field => {
+      if (!field) return []
+      const type = getNamedType(field.type)
+      if (isScalarType(type)) return field.name
+      if (isObjectType(type)) {
+        const scalarFields = Object.values(type.getFields()).flatMap(getFields)
+        if (!scalarFields.length) return []
+        return { [ field.name ]: scalarFields }
+      }
+      return []
+    }
 
     const queryFields = fields.flatMap(key => {
-      let field
-      try {
-        field = type.getField(key)
-      } catch (error) {
-        if (collection.fields.includes(key)) {
-          reporter.warn(`Field ${key} does not exist in type ${collection.typeName}, skipping.`)
-        }
+      const field = typeFields[ key ]
+      if (!field && collection.fields.includes(key)) {
+        reporter.warn(`Field ${key} does not exist in type ${collection.typeName}, skipping.`)
         return []
       }
 
-      if (composer.isScalarType(field.type)) return key
-      if (composer.isObjectType(field.type)) {
-        const subFields = field.type.getFields()
-        const scalarFields = Object.entries(subFields).filter(([name, field]) => composer.isScalarType(field.type)).map(([name]) => name)
-
-        if (!scalarFields.length) return []
-        return { [ key ]: scalarFields }
-      }
-      // Fallback
-      return []
+      return getFields(field)
     })
 
     const operationName = `all${collection.typeName}`
@@ -100,9 +102,9 @@ function FlexSearchIndex (api, options) {
   // After the Store has been filled, and the Schema has been created, start the index import.
   api.onBootstrap(async () => {
     const graphql = api._app.graphql
-    const composer = api._app.schema.getComposer()
+    const schema = api._app.schema.getSchema()
 
-    const docsArrays = await pMap(collections, collection => getCollection(collection, { graphql, composer }))
+    const docsArrays = await pMap(collections, collection => getCollection(collection, { graphql, schema }))
     const docs = docsArrays.flat()
 
     search.add(docs)
