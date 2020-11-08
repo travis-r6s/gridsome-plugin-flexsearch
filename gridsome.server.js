@@ -75,6 +75,7 @@ function FlexSearchIndex (api, options) {
       fields: [{ edges: [{ node: queryFields }] }]
     })
 
+    await graphql(query)
     const { data, errors } = await graphql(query)
     if (errors) {
       reporter.error(errors[ 0 ].message)
@@ -90,7 +91,7 @@ function FlexSearchIndex (api, options) {
       }))
 
       return {
-        id: nanoid(),
+        id: node.id,
         index: collection.indexName,
         node,
         ...indexFields
@@ -103,11 +104,18 @@ function FlexSearchIndex (api, options) {
     const graphql = api._app.graphql
     const schema = api._app.schema.getSchema()
 
+    // Create initial index
     const docsArrays = await pMap(collections, collection => getCollection(collection, { graphql, schema }))
     const docs = docsArrays.flat()
-
-    search.add(docs)
     console.info(`Added ${docs.length} nodes to Search Index`)
+    search.add(docs)
+
+    setTimeout(async () => {
+      // Rerun after slight delay to get processed images
+      const docsArrays = await pMap(collections, collection => getCollection(collection, { graphql, schema }))
+      const docs = docsArrays.flat()
+      search.update(docs)
+    }, 3000)
   })
 
   // Setup an endpoint for the dev server
