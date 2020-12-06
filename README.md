@@ -142,7 +142,7 @@ module.exports = {
 | ---------- | --------|
 | `chunk` | Defaults to false. If `true` or a Number (docs array chunk size), it will split up the FlexSearch index & docs JSON file to reduce filesizes - useful if you have a huge amount of data. |
 | `compress` | Defaults to false. If you have a large amount of data (5k+ nodes) you can compress this data to substantially decrease the JSON size. Note that this may actually _increase_ the JSON size if you have a small amount of data, due to the way compression works. |
-| `autoFetch` | Defaults to true. This plugin will usually automatically fetch and import the generated FlexSearch index & docs as soon as the site is loaded, but if you only want this to happen on a certain route to reduce other page load times for example (i.e. `/search`), you can specify that route with this option, or disable it completely and import yourself with `this.$search/import({ ...`] |
+| `autoFetch` | Defaults to true. This plugin will usually automatically fetch and import the generated FlexSearch index & docs as soon as the site is loaded, but if you only want this to happen on a certain route to reduce other page load times for example (i.e. `/search`), you can specify that route with this option, or disable it completely and import yourself with `this.$search.import({ ...`] |
 
 Some examples of these configurations are shown below:
 
