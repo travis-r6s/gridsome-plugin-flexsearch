@@ -84,7 +84,9 @@ function FlexSearchIndex (api, options) {
 
     const nodes = data[ operationName ].edges.map(({ node }) => node)
 
-    return nodes.map(node => {
+    return nodes.map(data => {
+      const node = typeof collection.transform === 'function' ? collection.transform(data) : data
+
       const indexFields = Object.fromEntries(searchFields.map(key => {
         const value = node[ key ]
         return Array.isArray(value) ? [key, JSON.stringify(value)] : [key, value]
