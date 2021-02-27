@@ -3,11 +3,11 @@ const _chunk = require('lodash.chunk')
 const cjson = require('compressed-json')
 const consola = require('consola')
 const fs = require('fs')
+const gql = require('gql-query-builder')
 const pMap = require('p-map')
 const path = require('path')
-const { nanoid } = require('nanoid')
-const gql = require('gql-query-builder')
 const { getNamedType, isScalarType, isObjectType } = require('gridsome/graphql')
+const { nanoid } = require('nanoid')
 
 const reporter = consola.create({
   defaults: {
