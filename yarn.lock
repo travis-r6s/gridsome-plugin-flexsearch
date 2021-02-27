@@ -293,30 +293,30 @@ color-name@~1.1.4:
   resolved "https://registry.yarnpkg.com/color-name/-/color-name-1.1.4.tgz#c2a09a87acbde69543de6f63fa3995c826c536a2"
   integrity sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==
 
-compressed-json@^1.0.15:
-  version "1.0.15"
-  resolved "https://registry.yarnpkg.com/compressed-json/-/compressed-json-1.0.15.tgz#0bb5b39e728ef44b7fc28beb0fa59d423938c008"
-  integrity sha512-6dbRW+ztvErpbdRUVKYw6S19pKLg4cPioVTEaYTKNpzAMMGtk4nT1uhBw7issYDKPoaxxaFd1zEs5D5jbV7IAQ==
+compressed-json@^1.0.16:
+  version "1.0.16"
+  resolved "https://registry.yarnpkg.com/compressed-json/-/compressed-json-1.0.16.tgz#51333f4d0faf046b714b842374ce5ae75e7aac49"
+  integrity sha512-fklkJ76BEyTPMbLv75nEEhFyHSLS0dt0AIGECBeCgd7O/IECIg7khOIi+2aKIutrjHaazr5J8M7edVDFEfRA/g==
 
 concat-map@0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/concat-map/-/concat-map-0.0.1.tgz#d8a96bd77fd68df7793a73036a3ba0d5405d477b"
   integrity sha1-2Klr13/Wjfd5OnMDajug1UBdR3s=
 
-consola@^2.15.0:
-  version "2.15.0"
-  resolved "https://registry.yarnpkg.com/consola/-/consola-2.15.0.tgz#40fc4eefa4d2f8ef2e2806147f056ea207fcc0e9"
-  integrity sha512-vlcSGgdYS26mPf7qNi+dCisbhiyDnrN1zaRbw3CSuc2wGOMEGGPsp46PdRG5gqXwgtJfjxDkxRNAgRPr1B77vQ==
+consola@^2.15.3:
+  version "2.15.3"
+  resolved "https://registry.yarnpkg.com/consola/-/consola-2.15.3.tgz#2e11f98d6a4be71ff72e0bdf07bd23e12cb61550"
+  integrity sha512-9vAdYbHj6x2fLKC4+oPH0kFzY/orMZyG2Aj+kNylHxKGJ/Ed4dpNyAQYwJOdqO4zdM7XpVHmyejQDcQHrnuXbw==
 
 contains-path@^0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/contains-path/-/contains-path-0.1.0.tgz#fe8cf184ff6670b6baef01a9d4861a5cbec4120a"
   integrity sha1-/ozxhP9mcLa67wGp1IYaXL7EEgo=
 
-core-js@^3.6.5:
-  version "3.6.5"
-  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.6.5.tgz#7395dc273af37fb2e50e9bd3d9fe841285231d1a"
-  integrity sha512-vZVEEwZoIsI+vPEuoF9Iqf5H7/M3eeQqWlQnYa8FSKKePuYTf5MWnxb5SDAzCa60b3JBRS5g9b+Dq7b1y/RCrA==
+core-js@^3.9.0:
+  version "3.9.0"
+  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.9.0.tgz#790b1bb11553a2272b36e2625c7179db345492f8"
+  integrity sha512-PyFBJaLq93FlyYdsndE5VaueA9K5cNB7CGzeCj191YYLhkQM0gdZR2SKihM70oF0wdqKSKClv/tEBOpoRmdOVQ==
 
 cross-spawn@^7.0.2:
   version "7.0.3"
@@ -713,10 +713,10 @@ globals@^12.1.0:
   dependencies:
     type-fest "^0.8.1"
 
-gql-query-builder@^3.5.0:
-  version "3.5.0"
-  resolved "https://registry.yarnpkg.com/gql-query-builder/-/gql-query-builder-3.5.0.tgz#a3f686250e9fde4e38c8d6f109ecd6d67373d21c"
-  integrity sha512-OQz+YjYVeA9n7o1PkRY2+MYIviXAeSbyDoUJnyHlgAfhIyOsNTsO4V2m9GqvGAm28NwvfZ24BAqMTZvRi9rVIQ==
+gql-query-builder@^3.5.5:
+  version "3.5.5"
+  resolved "https://registry.yarnpkg.com/gql-query-builder/-/gql-query-builder-3.5.5.tgz#fd35547c6e99d33d72a1df50478e3efbc600af4f"
+  integrity sha512-ovc2KaLE/e5Wx9+ViWCZhjbGkPw0qxY973NIvw03kDY8PohQTaI3nnG/yH//RjB/Gz5X4QDwp7Nkg1ZqFnSySQ==
 
 graceful-fs@^4.1.2:
   version "4.2.3"
@@ -957,10 +957,10 @@ ms@^2.1.1:
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.2.tgz#d09d1f357b443f493382a8eb3ccd183872ae6009"
   integrity sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==
 
-nanoid@^3.1.16:
-  version "3.1.16"
-  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.1.16.tgz#b21f0a7d031196faf75314d7c65d36352beeef64"
-  integrity sha512-+AK8MN0WHji40lj8AEuwLOvLSbWYApQpre/aFJZD71r43wVRLrOYS4FmJOPQYon1TqB462RzrrxlfA74XRES8w==
+nanoid@^3.1.20:
+  version "3.1.20"
+  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.1.20.tgz#badc263c6b1dcf14b71efaa85f6ab4c1d6cfc788"
+  integrity sha512-a1cQNyczgKbLX9jwbS/+d7W8fX/RfgYR7lVWwWOGIPNgK2m0MWvrGF6/m4kk6U3QcFMnZf3RIhL0v2Jgh/0Uxw==
 
 natural-compare@^1.4.0:
   version "1.4.0"
