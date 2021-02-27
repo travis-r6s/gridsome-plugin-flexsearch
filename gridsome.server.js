@@ -71,7 +71,6 @@ function FlexSearchIndex (api, options) {
       fields: [{ edges: [{ node: queryFields }] }]
     })
 
-    await graphql(query)
     const { data, errors } = await graphql(query)
     if (errors) {
       reporter.error(errors[ 0 ].message)
@@ -89,9 +88,9 @@ function FlexSearchIndex (api, options) {
       }))
 
       return {
+        node,
         id: node.id,
         index: collection.indexName,
-        node,
         ...indexFields
       }
     })
@@ -105,7 +104,7 @@ function FlexSearchIndex (api, options) {
     // Create initial index
     const docsArrays = await pMap(collections, collection => getCollection(collection, { graphql, schema }))
     const docs = docsArrays.flat()
-    console.info(`Added ${docs.length} nodes to Search Index`)
+    reporter.info(`Added ${docs.length} nodes to Search Index`)
     search.add(docs)
 
     setTimeout(async () => {
@@ -118,7 +117,7 @@ function FlexSearchIndex (api, options) {
 
   // Setup an endpoint for the dev server
   api.configureServer(app => {
-    console.info('Serving search index...')
+    reporter.info('Serving search index...')
     if (chunk) {
       const { manifest, chunks } = createManifest()
       app.get('/flexsearch/manifest.json', (req, res) => {
@@ -143,7 +142,7 @@ function FlexSearchIndex (api, options) {
     const outputDir = config.outputDir || config.outDir
 
     if (chunk) {
-      console.info('Creating search index (chunked mode)...')
+      reporter.info('Creating search index (chunked mode)...')
       const flexsearchDir = path.join(outputDir, 'flexsearch')
       const manifestFilename = path.join(flexsearchDir, 'manifest.json')
 
@@ -157,14 +156,14 @@ function FlexSearchIndex (api, options) {
         await fs.writeFileSync(chunkFilename, JSON.stringify(data))
       }
 
-      console.info('Saved search index.')
+      reporter.info('Saved search index.')
     } else {
-      console.info('Creating search index...')
+      reporter.info('Creating search index...')
       const filename = path.join(outputDir, 'flexsearch.json')
       let searchIndex = search.export({ serialize: false })
       if (compress) searchIndex = cjson.compress(searchIndex)
       await fs.writeFileSync(filename, JSON.stringify(searchIndex))
-      console.info('Saved search index.')
+      reporter.info('Saved search index.')
     }
   })
 
