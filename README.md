@@ -62,6 +62,7 @@ Next, you need to specify what types you want to add to the index with `collecti
 | `typeName` | The Schema typename - e.g. `Post`. All nodes with this typename will be added to the search index. |
 | `indexName` | The name of the index created for this collection - can be the same as `typeName`. It is added to the result, so you can differentiate between `Collection` & `Product` search results for example. |
 | `fields` | An array of keys that will be extracted from each node, and added to the search index doc (what the search result will return when queried). |
+| `transform` | (optional) Transforms a schema to enable searching in nested data structures | 
 
 Fields will be returned with the search result under a `node` key, so for example you could include a product title, slug, and image to show the product name & image in the search result, and add a link to the relevant page.
 
@@ -75,7 +76,7 @@ module.exports = {
     {
       use: 'gridsome-plugin-flexsearch',
       options: {
-        searchFields: ['title', 'tags'],
+        searchFields: ['title', 'tags', 'authors'],
         collections: [
           {
             typeName: 'Post'
@@ -85,7 +86,11 @@ module.exports = {
           {
             typeName: 'Collection'
             indexName: 'Collection',
-            fields: ['id', 'title', 'path']
+            fields: ['id', 'title', 'path'],
+            tramsform: (collection) => ({
+              ...collection,
+              authors: collection.authors.map(author => author.name)
+            })
           }
         ]
       }

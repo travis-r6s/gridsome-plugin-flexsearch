@@ -62,9 +62,12 @@ function FlexSearchIndex (api, options) {
   function getStoreCollection (collection) {
     const collectionStore = api._app.store.getCollection(collection.typeName)
     if (!collectionStore) return
-    return collectionStore.data().map(node => {
-      delete node.$loki
-      delete node.$uid
+    return collectionStore.data().map(data => {
+      delete data.$loki
+      delete data.$uid
+
+      const node = typeof collection.transform === 'function' ? collection.transform(data) : data
+
       // Fields that will be indexed, so must be included & flattened etc
       const searchFieldKeys = Array.isArray(searchFields) ? searchFields : Object.keys(searchFields)
       const indexFields = Object.fromEntries(searchFieldKeys.map(key => {
