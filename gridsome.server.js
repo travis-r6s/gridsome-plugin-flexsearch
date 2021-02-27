@@ -1,7 +1,7 @@
 const FlexSearch = require('flexsearch')
 const _chunk = require('lodash.chunk')
 const cjson = require('compressed-json')
-const consola = require('consola')
+const consola = require('consola').default
 const fs = require('fs')
 const gql = require('gql-query-builder')
 const pMap = require('p-map')
@@ -9,11 +9,7 @@ const path = require('path')
 const { getNamedType, isScalarType, isObjectType } = require('gridsome/graphql')
 const { nanoid } = require('nanoid')
 
-const reporter = consola.create({
-  defaults: {
-    tag: 'gridsome-plugin-flexsearch'
-  }
-})
+const reporter = consola.withTag('gridsome-plugin-flexsearch')
 
 function FlexSearchIndex (api, options) {
   // Setup defaults
