@@ -106,13 +106,6 @@ function FlexSearchIndex (api, options) {
     const docs = docsArrays.flat()
     reporter.info(`Added ${docs.length} nodes to Search Index`)
     search.add(docs)
-
-    setTimeout(async () => {
-      // Rerun after slight delay to get processed images
-      const docsArrays = await pMap(collections, collection => getCollection(collection, { graphql, schema }))
-      const docs = docsArrays.flat()
-      search.update(docs)
-    }, 3000)
   })
 
   // Setup an endpoint for the dev server
