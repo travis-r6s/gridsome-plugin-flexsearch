@@ -87,7 +87,7 @@ module.exports = {
             typeName: 'Collection'
             indexName: 'Collection',
             fields: ['id', 'title', 'path'],
-            tramsform: (collection) => ({
+            transform: (collection) => ({
               ...collection,
               authors: collection.authors.map(author => author.name)
             })

@@ -101,13 +101,15 @@ function FlexSearchIndex (api, options) {
   }
 
   // Function to get collection from GraphQL server (using internal remote schema) and transform nodes
-  async function getGraphQLCollection ({ indexName, query, path }) {
+  async function getGraphQLCollection ({ indexName, query, path, transform }) {
     // Query data, throw errors, then get the nodes with the provided path
     const { data, errors } = await api._app.graphql(query)
     if (errors) return console.error(errors[ 0 ])
     const nodes = _get(data, path, [])
 
-    return nodes.map(node => {
+    return nodes.map(data => {
+      const node = typeof transform === 'function' ? transform(data) : data
+
       // Fields that will be indexed, so must be included & flattened etc
       const searchFieldKeys = Array.isArray(searchFields) ? searchFields : Object.keys(searchFields)
       const indexFields = Object.fromEntries(searchFieldKeys.map(key => {
