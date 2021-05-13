@@ -6,17 +6,18 @@ Table of contents:
 
 1. [Installation](#installation)
 2. [Configuration](#configuration)
-    - [GraphQL Source](#graphql-source)
     - [Additional Options](#additional-options)
     - [FlexSearch Options](#flexsearch-options)
 3. [Usage](#usage)
 
 ## Installation
 
-_Requires a Node version >=12.x, and at least Gridsome `v0.7.3`, versions `>= 0.1.21` requires Gridsome > `0.7.15`._
+_Requires a Node version >=12.x, and at least Gridsome `0.7.15`._
 
 ```bash
-yarn add gridsome-plugin-flexsearch # or
+# Yarn
+yarn add gridsome-plugin-flexsearch
+# NPM
 npm i gridsome-plugin-flexsearch
 ```
 
@@ -62,7 +63,7 @@ Next, you need to specify what types you want to add to the index with `collecti
 | `typeName` | The Schema typename - e.g. `Post`. All nodes with this typename will be added to the search index. |
 | `indexName` | The name of the index created for this collection - can be the same as `typeName`. It is added to the result, so you can differentiate between `Collection` & `Product` search results for example. |
 | `fields` | An array of keys that will be extracted from each node, and added to the search index doc (what the search result will return when queried). |
-| `transform` | (optional) Transforms a schema to enable searching in nested data structures | 
+| `transform` | Transforms a schema to enable searching in nested data structures (optional). |
 
 Fields will be returned with the search result under a `node` key, so for example you could include a product title, slug, and image to show the product name & image in the search result, and add a link to the relevant page.
 
@@ -81,7 +82,7 @@ module.exports = {
           {
             typeName: 'Post'
             indexName: 'Post',
-            fields: ['id', 'title', 'path', 'image']
+            fields: ['id', 'title', 'slug', 'image']
           },
           {
             typeName: 'Collection'
@@ -101,45 +102,7 @@ module.exports = {
 
 ### GraphQL Source
 
-This plugin also supports using the GraphQL source plugin. This requires a bit more setup however, as you will need to specify the GraphQL query that will return nodes you want to search, and the path to that data in the query.
-
-| Option | Explanation |
-| ------------- | ------------- |
-| `indexName` | The name of the index created for this collection - can be the same as `typeName`. It is added to the result, so you can differentiate between `Collection` & `Product` search results for example. |
-| `query` | A GraphQL query that will return all the data needed for the `searchFields` as well as any extra node data. |
-| `path` | The path to the nodes array data returned from the GraphQL Query, using any [Lodash Get](https://lodash.com/docs/4.17.15#get) methods. |
-
-An example of this setup is shown below, using the [GraphQL source plugin](https://gridsome.org/plugins/@gridsome/source-graphql) with [WPGraphQL](https://www.wpgraphql.com):
-
-`gridsome.config.js`
-```js
-module.exports = {
-  // ...
-  plugins: [
-    {
-      use: '@gridsome/source-graphql',
-      options: {
-        url: 'https://somesite.com/graphql',
-        fieldName: 'wordpress',
-        typeName: 'Wordpress'
-      }
-    },
-    {
-      use: 'gridsome-plugin-flexsearch',
-      options: {
-        searchFields: ['title', 'excerpt'],
-        collections: [
-          {
-            indexName: 'Product',
-            query: `{ wordpress { posts { nodes { id, title, uri, excerpt, description, featuredImage { altText, sourceUrl } } } } }`,
-            path: 'wordpress.posts.nodes'
-          }
-        ]
-      }
-    }
-  ]
-}
-```
+Previous versions of this plugin(`<=1.0`) supported using the GraphQL source plugin - however, this has now been deprecated, due to difficulties in querying and fetching the data - it is usually better to import your data into Gridsome's store anyway.
 
 ### Additional Options
 
@@ -147,7 +110,7 @@ module.exports = {
 | ---------- | --------|
 | `chunk` | Defaults to false. If `true` or a Number (docs array chunk size), it will split up the FlexSearch index & docs JSON file to reduce filesizes - useful if you have a huge amount of data. |
 | `compress` | Defaults to false. If you have a large amount of data (5k+ nodes) you can compress this data to substantially decrease the JSON size. Note that this may actually _increase_ the JSON size if you have a small amount of data, due to the way compression works. |
-| `autoFetch` | Defaults to true. This plugin will usually automatically fetch and import the generated FlexSearch index & docs as soon as the site is loaded, but if you only want this to happen on a certain route to reduce other page load times for example (i.e. `/search`), you can specify that route with this option, or disable it completely and import yourself with `this.$search.import({ ...`] |
+| `autoFetch` | Defaults to true. This plugin will usually automatically fetch and import the generated FlexSearch index & docs as soon as the site is loaded, but if you only want this to happen on a certain route (i.e. `/search`) to reduce other page load times for example, you can specify that route with this option, or disable it completely and import yourself with `this.$search.import({ ...`] |
 
 Some examples of these configurations are shown below:
 
@@ -216,7 +179,7 @@ export default {
 </script>
 ```
 
-The search results will be an array of objects, each containing an id, the index name, the fields you specified in collections, and the path to the resurce (i.e. `/posts/abc-123`) which you could use in `g-link` for example.
+The search results will be an array of objects, each containing an `id`, the index name as `index`, a `node` object containing the fields you specified in collections, and the `path` to the resource (if using the `gridsome.config.js` `templates` option) which you can use with `g-link`. Image processing is also supported (for local images only), so you can use processed images with `g-image` as ususal.
 
 A handy mixin is also included with this package, to save you writing the above boilerplate:
 
@@ -234,7 +197,8 @@ A handy mixin is also included with this package, to save you writing the above 
       :key="result.id"
       :to="result.path"
       class="navbar-item">
-      {{ result.title }}
+      <p>{{ result.title }}</p>
+      <g-image :src="result.image">
     </g-link>
   </Layout>
 </template>

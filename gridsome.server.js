@@ -1,28 +1,25 @@
 const FlexSearch = require('flexsearch')
 const _chunk = require('lodash.chunk')
-const _get = require('lodash.get')
 const cjson = require('compressed-json')
 const consola = require('consola')
 const fs = require('fs')
+const gql = require('gql-query-builder')
 const pMap = require('p-map')
 const path = require('path')
-const { v4: uuid } = require('uuid')
+const { getNamedType, isScalarType, isObjectType } = require('gridsome/graphql')
+const { nanoid } = require('nanoid')
 
-const console = consola.create({
-  defaults: {
-    tag: 'gridsome-plugin-flexsearch'
-  }
-})
+const reporter = consola.withTag('gridsome-plugin-flexsearch')
 
 function FlexSearchIndex (api, options) {
   // Setup defaults
   const { searchFields = [], collections = [], flexsearch = {}, chunk = false, compress = false } = options
-  const { profile = 'default', ...flexoptions } = flexsearch
+  const { profile = 'default', ...flexOptions } = flexsearch
 
   // Create base FlexSearch instance
   const search = new FlexSearch({
     profile,
-    ...flexoptions,
+    ...flexOptions,
     doc: {
       id: 'id',
       field: searchFields
@@ -33,120 +30,87 @@ function FlexSearchIndex (api, options) {
   const clientOptions = { pathPrefix: api._app.config._pathPrefix, siteUrl: api._app.config.siteUrl, ...options }
   api.setClientOptions(clientOptions)
 
-  // Simple function to get Node from store, and remove internal refs
-  function getNode ({ typeName, id }) {
-    const node = api._app.store.getNode(typeName, id)
-    if (!node) return
+  // Function to get collection from graphql, and transform nodes
+  async function getCollection (collection, { schema, graphql }) {
+    const type = schema.getType(collection.typeName)
+    if (!type) {
+      reporter.error(`Collection ${collection.typeName} does not exist in schema, skipping.`)
+      return []
+    }
 
-    delete node.$loki
-    delete node.$uid
-    return node
-  }
+    const fields = [...new Set([...collection.fields, ...searchFields, 'id'])]
+    const typeFields = type.getFields()
 
-  // Functions to recursively fetch relations, and normalize data
-  function parseArray (array, stringify = true) {
-    const [firstItem] = array
-    if (firstItem && firstItem.typeName) return array.map(node => getNode(node))
-    if (!stringify) return array
-    // If this is for an index field, we need to stringify it so it can be indexed
-    return JSON.stringify(array)
-  }
+    const excludeFields = ['pageInfo', 'belongsTo']
+    const getFields = (field, fetched = []) => {
+      if (!field || excludeFields.includes(field.name)) return []
 
-  function parseObject (object, stringify = true) {
-    if (object instanceof Array) return parseArray(object, stringify)
-    if (object.typeName) return getNode(object)
-    return Object.fromEntries(Object.entries(object).map(([key, value]) => [key, value instanceof Object ? parseObject(value) : value]))
-  }
-
-  // Function to get collection from store, and transform nodes
-  function getStoreCollection (collection) {
-    const collectionStore = api._app.store.getCollection(collection.typeName)
-    if (!collectionStore) return
-    return collectionStore.data().map(data => {
-      delete data.$loki
-      delete data.$uid
-
-      const node = typeof collection.transform === 'function' ? collection.transform(data) : data
-
-      // Fields that will be indexed, so must be included & flattened etc
-      const searchFieldKeys = Array.isArray(searchFields) ? searchFields : Object.keys(searchFields)
-      const indexFields = Object.fromEntries(searchFieldKeys.map(key => {
-        const value = node[ key ]
-        if (!value) return [key, value]
-        if (value instanceof Date) return [key, value.toISOString()]
-        if (value instanceof Object) return [key, parseObject(value)]
-        return [key, value]
-      }))
-
-      // The doc fields that will be returned with the search result
-      // We can either return just the fields a user has chosen, or return the whole node
-      const docFields = collection.fields ? collection.fields.map(field => [field, node[ field ]]) : Object.entries(node)
-      // Get any relations
-      const doc = Object.fromEntries(docFields.map(([key, value]) => {
-        if (!value) return [key, value]
-        if (value instanceof Date) return [key, value.toISOString()]
-        if (value instanceof Object) return [key, parseObject(value, false)]
-        return [key, value]
-      }))
-
-      // All other fields used will be added as the node field on the doc
-      return {
-        id: uuid(),
-        index: collection.indexName,
-        path: node.path,
-        node: doc,
-        ...indexFields
+      const type = getNamedType(field.type)
+      if (isScalarType(type)) return field.name
+      if (isObjectType(type) && !fetched.includes(field.name)) {
+        const scalarFields = Object.values(type.getFields()).flatMap(subField => getFields(subField, [...fetched, field.name]))
+        if (!scalarFields.length) return []
+        return { [ field.name ]: scalarFields }
       }
-    })
-  }
+      return []
+    }
 
-  // Function to get collection from GraphQL server (using internal remote schema) and transform nodes
-  async function getGraphQLCollection ({ indexName, query, path, transform }) {
-    // Query data, throw errors, then get the nodes with the provided path
-    const { data, errors } = await api._app.graphql(query)
-    if (errors) return console.error(errors[ 0 ])
-    const nodes = _get(data, path, [])
+    const queryFields = fields.flatMap(key => {
+      const field = typeFields[ key ]
+      if (!field && collection.fields.includes(key)) {
+        reporter.warn(`Field ${key} does not exist in type ${collection.typeName}, skipping.`)
+        return []
+      }
+
+      return getFields(field)
+    })
+
+    const operationName = `all${collection.typeName}`
+    const { query } = gql.query({
+      operation: operationName,
+      fields: [{ edges: [{ node: queryFields }] }]
+    })
+
+    const { data, errors } = await graphql(query)
+    if (errors) {
+      reporter.error(errors[ 0 ].message)
+      return []
+    }
+
+    const nodes = data[ operationName ].edges.map(({ node }) => node)
 
     return nodes.map(data => {
-      const node = typeof transform === 'function' ? transform(data) : data
+      const node = typeof collection.transform === 'function' ? collection.transform(data) : data
 
-      // Fields that will be indexed, so must be included & flattened etc
-      const searchFieldKeys = Array.isArray(searchFields) ? searchFields : Object.keys(searchFields)
-      const indexFields = Object.fromEntries(searchFieldKeys.map(key => {
+      const indexFields = Object.fromEntries(searchFields.map(key => {
         const value = node[ key ]
-        if (!value) return [key, value]
-        if (value instanceof Date) return [key, value.toISOString()]
-        if (value instanceof Object) return [key, parseObject(value)]
-        return [key, value]
+        return Array.isArray(value) ? [key, JSON.stringify(value)] : [key, value]
       }))
 
-      // All other fields used will be added as the node field on the doc
       return {
-        id: uuid(),
-        index: indexName,
-        path: node.path,
         node,
+        id: node.id,
+        index: collection.indexName,
         ...indexFields
       }
     })
   }
 
-  // After the store has been created/updated, start the index import.
+  // After the Store has been filled, and the Schema has been created, start the index import.
   api.onBootstrap(async () => {
-    // Map over collections, and either fetch from remote graphql or local store. Then flatten the received arrays.
-    const docs = (await pMap(collections, collection => {
-      if (collection.query) return getGraphQLCollection(collection)
-      return getStoreCollection(collection)
-    })).flat()
+    const graphql = api._app.graphql
+    const schema = api._app.schema.getSchema()
 
-    // Add to search index
+    // Create initial index
+    const docsArrays = await pMap(collections, collection => getCollection(collection, { graphql, schema }))
+    const docs = docsArrays.flat()
+    reporter.info(`Added ${docs.length} nodes to Search Index`)
     search.add(docs)
-    console.info(`Added ${docs.length} nodes to Search Index`)
   })
 
   // Setup an endpoint for the dev server
   api.configureServer(app => {
-    console.info('Serving search index...')
+    reporter.info('Serving search index...')
     if (chunk) {
       const { manifest, chunks } = createManifest()
       app.get('/flexsearch/manifest.json', (req, res) => {
@@ -171,7 +135,7 @@ function FlexSearchIndex (api, options) {
     const outputDir = config.outputDir || config.outDir
 
     if (chunk) {
-      console.info('Creating search index (chunked mode)...')
+      reporter.info('Creating search index (chunked mode)...')
       const flexsearchDir = path.join(outputDir, 'flexsearch')
       const manifestFilename = path.join(flexsearchDir, 'manifest.json')
 
@@ -185,14 +149,14 @@ function FlexSearchIndex (api, options) {
         await fs.writeFileSync(chunkFilename, JSON.stringify(data))
       }
 
-      console.info('Saved search index.')
+      reporter.info('Saved search index.')
     } else {
-      console.info('Creating search index...')
+      reporter.info('Creating search index...')
       const filename = path.join(outputDir, 'flexsearch.json')
       let searchIndex = search.export({ serialize: false })
       if (compress) searchIndex = cjson.compress(searchIndex)
       await fs.writeFileSync(filename, JSON.stringify(searchIndex))
-      console.info('Saved search index.')
+      reporter.info('Saved search index.')
     }
   })
 
@@ -202,7 +166,7 @@ function FlexSearchIndex (api, options) {
     const [searchDocs] = search.export({ serialize: false, index: false, doc: true })
 
     const chunkedIndex = searchIndex.reduce((manifest, index) => {
-      const chunk = { id: uuid(), index }
+      const chunk = { id: nanoid(), index }
       return {
         ids: [...manifest.ids, chunk.id],
         indexes: {
@@ -214,7 +178,7 @@ function FlexSearchIndex (api, options) {
 
     const chunkSize = typeof chunk === 'number' ? chunk : 2000
     const chunkedDocs = _chunk(Object.entries(searchDocs), chunkSize).reduce((manifest, docs) => {
-      const chunk = { id: uuid(), docs }
+      const chunk = { id: nanoid(), docs }
 
       return {
         ids: [...manifest.ids, chunk.id],
@@ -226,7 +190,7 @@ function FlexSearchIndex (api, options) {
     }, { ids: [], docs: {} })
 
     const manifest = {
-      hash: uuid(),
+      hash: nanoid(),
       index: chunkedIndex.ids,
       docs: chunkedDocs.ids
     }
