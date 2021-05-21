@@ -65,7 +65,7 @@ function FlexSearchIndex (api, options) {
       return getFields(field)
     })
 
-    const operationName = `all${collection.typeName}`
+    const operationName = collection.typeName.split('').reduce((str, l, i) => i === 0 ? str.concat(l.toUpperCase()) : str.concat(l), 'all')
     const { query } = gql.query({
       operation: operationName,
       fields: [{ edges: [{ node: queryFields }] }]
