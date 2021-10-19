@@ -60,8 +60,16 @@ export default async function (Vue, options, { isClient, router }) {
 
     if (!autoFetch) return
 
-    if (typeof autoFetch === 'string' || typeof autoFetch === 'object') {
-      let loaded = false
+    let loaded = false
+
+    if (typeof autoFetch === 'function') {
+      return router.afterEach((to, from) => {
+        if (!loaded && autoFetch.call(to, from)) {
+          loaded = true
+          return chunk ? loadChunkMode(search) : loadNormalMode(search)
+        }
+      })
+    } else if (typeof autoFetch === 'string' || typeof autoFetch === 'object') {
       const pathsToLoad = typeof autoFetch === 'string' ? [autoFetch] : autoFetch
       return router.afterEach(({ path: currentPath }) => {
         if (pathsToLoad.includes(currentPath) && !loaded) {
