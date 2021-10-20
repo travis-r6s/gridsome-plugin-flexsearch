@@ -64,7 +64,7 @@ export default async function (Vue, options, { isClient, router }) {
 
     if (typeof autoFetch === 'function') {
       return router.afterEach((to, from) => {
-        if (!loaded && autoFetch.call(to, from)) {
+        if (!loaded && autoFetch.call(this, to, from)) {
           loaded = true
           return chunk ? loadChunkMode(search) : loadNormalMode(search)
         }
