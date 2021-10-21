@@ -3,7 +3,7 @@ import cjson from 'compressed-json'
 import pMap from 'p-map'
 
 export default async function (Vue, options, { isClient, router }) {
-  const { flexsearch, chunk = false, compress = false, autoFetch = true, autoSetup = true, searchFields, pathPrefix, siteUrl } = options
+  const { flexsearch, chunk = false, compress = false, autoFetch = true, autoFetchRegex = false, autoSetup = true, searchFields, pathPrefix, siteUrl } = options
 
   if (isClient) {
     const basePath = pathPrefix && (process.env.NODE_ENV !== 'development' || location.origin === siteUrl) ? `${pathPrefix}/flexsearch` : '/flexsearch'
@@ -58,13 +58,13 @@ export default async function (Vue, options, { isClient, router }) {
     Vue.prototype.$searchOptions = { basePath }
     Vue.prototype.$searchLoad = () => chunk ? loadChunkMode(search) : loadNormalMode(search)
 
-    if (!autoFetch) return
+    if (!autoFetch && !autoFetchRegex) return
 
     let loaded = false
 
-    if (typeof autoFetch === 'function') {
-      return router.afterEach((to, from) => {
-        if (!loaded && autoFetch.call(this, to, from)) {
+    if (typeof autoFetchRegex === 'string') {
+      return router.afterEach(({ path: currentPath }) => {
+        if (!loaded && autoFetchRegex.test(currentPath)) {
           loaded = true
           return chunk ? loadChunkMode(search) : loadNormalMode(search)
         }
