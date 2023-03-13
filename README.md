@@ -28,7 +28,7 @@ module.exports = {
   // ...
   plugins: [
     {
-      use: 'gridsome-plugin-flexsearch',
+      use: '@louisluu25/gridsome-plugin-flexsearch',
       options: {
         searchFields: ['title'],
         collections: [
@@ -77,7 +77,7 @@ module.exports = {
   // ...
   plugins: [
     {
-      use: 'gridsome-plugin-flexsearch',
+      use: '@louisluu25/gridsome-plugin-flexsearch',
       options: {
         searchFields: ['title', 'tags', 'authors'],
         collections: [
