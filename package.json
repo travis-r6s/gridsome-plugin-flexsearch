@@ -8,10 +8,6 @@
     "name": "Louis L",
     "email": "louis.luu92@gmail.com"
   },
-  "publishConfig": {
-    "@louisl25:registry": "https://npm.pkg.github.com",
-    "access": "public"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/louis-l/gridsome-plugin-flexsearch.git"
