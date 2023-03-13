@@ -6,8 +6,8 @@ Table of contents:
 
 1. [Installation](#installation)
 2. [Configuration](#configuration)
-    - [Additional Options](#additional-options)
-    - [FlexSearch Options](#flexsearch-options)
+   - [Additional Options](#additional-options)
+   - [FlexSearch Options](#flexsearch-options)
 3. [Usage](#usage)
 
 ## Installation
@@ -16,30 +16,31 @@ _Requires a Node version >=12.x, and at least Gridsome `0.7.15`._
 
 ```bash
 # Yarn
-yarn add gridsome-plugin-flexsearch
+yarn add @louisluu25/gridsome-plugin-flexsearch
 # NPM
-npm i gridsome-plugin-flexsearch
+npm i @louisluu25/gridsome-plugin-flexsearch
 ```
 
 `gridsome.config.js`
+
 ```js
 module.exports = {
   // ...
   plugins: [
     {
-      use: 'gridsome-plugin-flexsearch',
+      use: '@louisluu25/gridsome-plugin-flexsearch',
       options: {
         searchFields: ['title'],
         collections: [
           {
             typeName: 'SomeType',
             indexName: 'SomeType',
-            fields: ['title', 'handle', 'description']
-          }
-        ]
-      }
-    }
-  ]
+            fields: ['title', 'handle', 'description'],
+          },
+        ],
+      },
+    },
+  ],
 }
 ```
 
@@ -49,8 +50,8 @@ This plugin requires a few configurations to get going.
 
 Firstly, you will need to add the fields that will be included in the index and searched. Note that this is different from the below `fields` option, as fields will not be searched - they are just what is returned in each result.
 
-| Option | Explanation |
-| ---------- | --------|
+| Option         | Explanation                                                            |
+| -------------- | ---------------------------------------------------------------------- |
 | `searchFields` | An array of keys in each node, that will be used for the search index. |
 
 You can also specify optional flexsearch configurations under a `flexsearch` key - the default configuration is to use the `default` profile, which will setup the FlexSearch instance with some sensible defaults.
@@ -58,24 +59,25 @@ However you can override this profile, or set custom options such as `tokenize`,
 
 Next, you need to specify what types you want to add to the index with `collections: [...`. `collections` expects an array of objects, each with at least two fields, and one optional field.
 
-| Option | Explanation |
-| ------------- | ------------- |
-| `typeName` | The Schema typename - e.g. `Post`. All nodes with this typename will be added to the search index. |
+| Option      | Explanation                                                                                                                                                                                         |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `typeName`  | The Schema typename - e.g. `Post`. All nodes with this typename will be added to the search index.                                                                                                  |
 | `indexName` | The name of the index created for this collection - can be the same as `typeName`. It is added to the result, so you can differentiate between `Collection` & `Product` search results for example. |
-| `fields` | An array of keys that will be extracted from each node, and added to the search index doc (what the search result will return when queried). |
-| `transform` | Transforms a schema to enable searching in nested data structures (optional). |
+| `fields`    | An array of keys that will be extracted from each node, and added to the search index doc (what the search result will return when queried).                                                        |
+| `transform` | Transforms a schema to enable searching in nested data structures (optional).                                                                                                                       |
 
 Fields will be returned with the search result under a `node` key, so for example you could include a product title, slug, and image to show the product name & image in the search result, and add a link to the relevant page.
 
 An example setup is shown below, assuming there is a `Post` and a `Collection` type:
 
 `gridsome.config.js`
+
 ```js
 module.exports = {
   // ...
   plugins: [
     {
-      use: 'gridsome-plugin-flexsearch',
+      use: '@louisluu25/gridsome-plugin-flexsearch',
       options: {
         searchFields: ['title', 'tags', 'authors'],
         collections: [
@@ -106,15 +108,17 @@ Previous versions of this plugin(`<=1.0`) supported using the GraphQL source plu
 
 ### Additional Options
 
-| Option | Explanation |
-| ---------- | --------|
-| `chunk` | Defaults to false. If `true` or a Number (docs array chunk size), it will split up the FlexSearch index & docs JSON file to reduce filesizes - useful if you have a huge amount of data. |
-| `compress` | Defaults to false. If you have a large amount of data (5k+ nodes) you can compress this data to substantially decrease the JSON size. Note that this may actually _increase_ the JSON size if you have a small amount of data, due to the way compression works. |
-| `autoFetch` | Defaults to true. This plugin will usually automatically fetch and import the generated FlexSearch index & docs as soon as the site is loaded, but if you only want this to happen on a certain route (i.e. `/search`) to reduce other page load times for example, you can specify that route with this option, or disable it completely and import yourself with `this.$search.import({ ...`] |
+| Option           | Explanation                                                                                                                                                                                                                                                                                                                                                                                      |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `chunk`          | Defaults to false. If `true` or a Number (docs array chunk size), it will split up the FlexSearch index & docs JSON file to reduce filesizes - useful if you have a huge amount of data.                                                                                                                                                                                                         |
+| `compress`       | Defaults to false. If you have a large amount of data (5k+ nodes) you can compress this data to substantially decrease the JSON size. Note that this may actually _increase_ the JSON size if you have a small amount of data, due to the way compression works.                                                                                                                                 |
+| `autoFetch`      | Defaults to true. This plugin will usually automatically fetch and import the generated FlexSearch index & docs as soon as the site is loaded, but if you only want this to happen on a certain route (i.e. `/search`) to reduce other page load times for example, you can specify that route with this option, or disable it completely and import yourself with `this.$search.import({ ...})` |
+| `autoFetchRegex` | Similar to `autoFetch`, but you use regular expression (as string, e.g. `"^\/docs\/*"`) to check against the current route path. Note: if this is set, `autoFetch` will be ignored.                                                                                                                                                                                                              |
 
 Some examples of these configurations are shown below:
 
 `gridsome.config.js`
+
 ```js
 // ...
 options: {
@@ -125,6 +129,8 @@ options: {
   chunk: 1000,
   autoFetch: ['/search', '/collections'],
   // ...
+  // Or
+  autoFetchRegex: '^\/docs\/*',
 }
 // ...
 ```
@@ -134,6 +140,7 @@ options: {
 Custom FlexSearch options can be configured under the `flexsearch` key, for example setting default profiles, or adding custom matchers/encoders.
 
 `gridsome.config.js`
+
 ```js
 // ...
 options: {
@@ -158,24 +165,25 @@ Now you can use it in your Gridsome site - the FlexSearch instance is available 
       v-model="searchTerm"
       class="input"
       type="text"
-      placeholder="Search">
+      placeholder="Search"
+    />
     {{ searchResults }}
   </Layout>
 </template>
 
 <script>
-export default {
-  data: () => ({
-    searchTerm: ''
-  }),
-  computed: {
-    searchResults () {
-      const searchTerm = this.searchTerm
-      if (searchTerm.length < 3) return []
-      return this.$search.search({ query: searchTerm, limit: 5 })
-    }
+  export default {
+    data: () => ({
+      searchTerm: '',
+    }),
+    computed: {
+      searchResults() {
+        const searchTerm = this.searchTerm
+        if (searchTerm.length < 3) return []
+        return this.$search.search({ query: searchTerm, limit: 5 })
+      },
+    },
   }
-}
 </script>
 ```
 

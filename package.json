@@ -1,16 +1,13 @@
 {
-  "name": "gridsome-plugin-flexsearch",
-  "version": "2.0.2",
+  "name": "@louisluu25/gridsome-plugin-flexsearch",
+  "version": "2.1.3",
   "description": "Add lightning fast search to Gridsome with FlexSearch",
   "main": "gridsome.server.js",
   "license": "MIT",
-  "author": {
-    "name": "Travis Reynolds",
-    "email": "travis@travisreynolds.dev"
-  },
+  "author": "Louis L <louis.luu92@gmail.com>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/thetre97/gridsome-plugin-flexsearch.git"
+    "url": "git+https://github.com/louis-l/gridsome-plugin-flexsearch.git"
   },
   "keywords": [
     "gridsome",
@@ -37,5 +34,12 @@
   },
   "devDependencies": {
     "eslint-config-travisreynolds-node": "1.2.0"
+  },
+  "bugs": {
+    "url": "https://github.com/louis-l/gridsome-plugin-flexsearch/issues"
+  },
+  "homepage": "https://github.com/louis-l/gridsome-plugin-flexsearch#readme",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
   }
 }
