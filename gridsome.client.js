@@ -9,15 +9,18 @@ export default async function (Vue, options, { isClient, router }) {
     const basePath = pathPrefix && (process.env.NODE_ENV !== 'development' || location.origin === siteUrl) ? `${pathPrefix}/flexsearch` : '/flexsearch'
 
     // Data fetch functions
-    const loadNormalMode = async search => {
-      let searchIndex = await fetch(`${basePath}.json`).then(r => r.json())
+    const loadNormalMode = async (search) => {
+      let searchIndex = await fetch(`${basePath}.json`).then((r) => r.json())
       if (compress) searchIndex = cjson.decompress(searchIndex)
       search.import(searchIndex, { serialize: false })
     }
 
-    const loadChunkMode = async search => {
-      const { index, docs } = await fetch(`${basePath}/manifest.json`).then(r => r.json())
-      const fetchData = id => fetch(`${basePath}/${id}.json`).then(r => r.json()).then(j => compress ? cjson.decompress(j) : j)
+    const loadChunkMode = async (search) => {
+      const { index, docs } = await fetch(`${basePath}/manifest.json`).then((r) => r.json())
+      const fetchData = (id) =>
+        fetch(`${basePath}/${id}.json`)
+          .then((r) => r.json())
+          .then((j) => (compress ? cjson.decompress(j) : j))
 
       const searchIndex = await pMap(index, fetchData)
       search.import(searchIndex, { index: true, doc: false, serialize: false })
@@ -37,11 +40,11 @@ export default async function (Vue, options, { isClient, router }) {
           ...flexsearch,
           doc: {
             id: 'id',
-            field: searchFields
-          }
+            field: searchFields,
+          },
         },
         basePath,
-        loadIndex: loadNormalMode
+        loadIndex: loadNormalMode,
       }
       return
     }
@@ -51,12 +54,12 @@ export default async function (Vue, options, { isClient, router }) {
       ...flexsearch,
       doc: {
         id: 'id',
-        field: searchFields
-      }
+        field: searchFields,
+      },
     })
     Vue.prototype.$search = search
     Vue.prototype.$searchOptions = { basePath }
-    Vue.prototype.$searchLoad = () => chunk ? loadChunkMode(search) : loadNormalMode(search)
+    Vue.prototype.$searchLoad = () => (chunk ? loadChunkMode(search) : loadNormalMode(search))
 
     if (!autoFetch && !autoFetchRegex) return
 
@@ -64,7 +67,7 @@ export default async function (Vue, options, { isClient, router }) {
 
     if (typeof autoFetchRegex === 'string') {
       return router.afterEach(({ path: currentPath }) => {
-        if (!loaded && autoFetchRegex.test(currentPath)) {
+        if (!loaded && new RegExp(autoFetchRegex).test(currentPath)) {
           loaded = true
           return chunk ? loadChunkMode(search) : loadNormalMode(search)
         }
