@@ -1,16 +1,16 @@
 {
   "name": "gridsome-plugin-flexsearch",
-  "version": "2.0.2",
+  "version": "2.1.0",
   "description": "Add lightning fast search to Gridsome with FlexSearch",
   "main": "gridsome.server.js",
   "license": "MIT",
   "author": {
-    "name": "Travis Reynolds",
-    "email": "travis@travisreynolds.dev"
+    "name": "Louis L",
+    "email": "louis.luu92@gmail.com"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/thetre97/gridsome-plugin-flexsearch.git"
+    "url": "https://github.com/louis-l/gridsome-plugin-flexsearch.git"
   },
   "keywords": [
     "gridsome",
