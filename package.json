@@ -9,7 +9,7 @@
     "email": "louis.luu92@gmail.com"
   },
   "publishConfig": {
-    "registry": "https://registry.npmjs.org",
+    "registry": "https://npm.pkg.github.com",
     "access": "public"
   },
   "repository": {
